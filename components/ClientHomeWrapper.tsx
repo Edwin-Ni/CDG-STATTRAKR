@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, lazy } from "react";
+import CountdownTimer from "./CountdownTimer";
 
 // Lazy load components
 const LeaderboardClient = lazy(() => import("./LeaderboardClient"));
@@ -8,12 +9,12 @@ const ActionLogClient = lazy(() => import("./ActionLogClient"));
 
 function LeaderboardSkeleton() {
   return (
-    <div className="bg-gray-100 rounded-lg p-4">
+    <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4">
       <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
+        <div className="h-8 bg-[#262840] rounded-md w-1/4"></div>
+        <div className="h-12 bg-[#262840] rounded-md"></div>
+        <div className="h-12 bg-[#262840] rounded-md"></div>
+        <div className="h-12 bg-[#262840] rounded-md"></div>
       </div>
     </div>
   );
@@ -21,12 +22,12 @@ function LeaderboardSkeleton() {
 
 function ActionLogSkeleton() {
   return (
-    <div className="bg-gray-100 rounded-lg p-4">
+    <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4">
       <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-        <div className="h-16 bg-gray-200 rounded"></div>
-        <div className="h-16 bg-gray-200 rounded"></div>
-        <div className="h-16 bg-gray-200 rounded"></div>
+        <div className="h-8 bg-[#262840] rounded-md w-1/4"></div>
+        <div className="h-16 bg-[#262840] rounded-md"></div>
+        <div className="h-16 bg-[#262840] rounded-md"></div>
+        <div className="h-16 bg-[#262840] rounded-md"></div>
       </div>
     </div>
   );
@@ -34,20 +35,116 @@ function ActionLogSkeleton() {
 
 export default function ClientHomeWrapper() {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="bg-[#1e1f2e] min-h-screen flex flex-col gap-8 p-6">
+      {/* Stats Bar */}
+      <div className="grid grid-cols-4 gap-4 mb-2">
+        <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
+          <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
+            ⭐ Level
+          </div>
+          <div className="text-3xl font-bold text-[#ffce63] pixel-font">12</div>
+        </div>
+        <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-3 text-center">
+          <div className="text-md text-[#7eb8da] uppercase tracking-wider pixel-font">
+            ⚡ XP
+          </div>
+          <div className="text-3xl font-bold text-[#7eb8da] pixel-font">
+            2,450
+          </div>
+        </div>
+        <div className="bg-[#1e1f2e] border-2 border-[#e74c3c] rounded-md p-3 text-center">
+          <div className="text-md text-[#e74c3c] uppercase tracking-wider pixel-font">
+            📋 Quests
+          </div>
+          <div className="text-3xl font-bold text-[#e74c3c] pixel-font">
+            7/10
+          </div>
+        </div>
+        <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
+          <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
+            💰 Coins
+          </div>
+          <div className="text-3xl font-bold text-[#ffce63] pixel-font">
+            1,200
+          </div>
+        </div>
+      </div>
+
+      {/* Monthly reset countdown */}
+      <CountdownTimer />
+
       <section>
-        <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
+        <h2 className="text-3xl font-bold mb-4 text-[#7eb8da] uppercase tracking-wider pixel-font">
+          Leaderboard
+        </h2>
         <Suspense fallback={<LeaderboardSkeleton />}>
           <LeaderboardClient />
         </Suspense>
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold mb-4">Recent Actions</h2>
+        <h2 className="text-3xl font-bold mb-4 text-[#e74c3c] uppercase tracking-wider pixel-font">
+          Recent Quests
+        </h2>
         <Suspense fallback={<ActionLogSkeleton />}>
           <ActionLogClient />
         </Suspense>
       </section>
+
+      {/* Achievements */}
+      {/* <div className="grid grid-cols-3 gap-4 mt-2">
+        <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-4 flex items-center space-x-3">
+          <div className="text-4xl">🏆</div>
+          <div>
+            <div className="text-lg text-[#ffce63] font-bold pixel-font">
+              First Quest Completed
+            </div>
+            <div className="text-md text-[#7eb8da] pixel-font">
+              You finished your first quest!
+            </div>
+          </div>
+        </div>
+        <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 flex items-center space-x-3">
+          <div className="text-4xl">🎮</div>
+          <div>
+            <div className="text-lg text-[#7eb8da] font-bold pixel-font">
+              Weekly Winner
+            </div>
+            <div className="text-md text-[#7eb8da] pixel-font">
+              Top of the leaderboard this week!
+            </div>
+          </div>
+        </div>
+        <div className="bg-[#1e1f2e] border-2 border-[#e74c3c] rounded-md p-4 flex items-center space-x-3">
+          <div className="text-4xl">🎯</div>
+          <div>
+            <div className="text-lg text-[#e74c3c] font-bold pixel-font">
+              10 Quests Mastered
+            </div>
+            <div className="text-md text-[#7eb8da] pixel-font">
+              Complete 10 different quests.
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+      {/* Footer */}
+      {/* <footer className="mt-8 pt-6 border-t-2 border-[#3d3f5a] text-center text-[#7eb8da] pixel-font">
+        <div className="text-xl uppercase tracking-widest mb-2">
+          PIXEL DASH | Level up. Play more. Conquer the leaderboard.
+        </div>
+        <div className="flex justify-center space-x-4">
+          <a href="#" className="text-2xl text-[#7eb8da] hover:text-[#ffce63]">
+            🐦
+          </a>
+          <a href="#" className="text-2xl text-[#7eb8da] hover:text-[#ffce63]">
+            👾
+          </a>
+          <a href="#" className="text-2xl text-[#7eb8da] hover:text-[#ffce63]">
+            📺
+          </a>
+        </div>
+      </footer> */}
     </div>
   );
 }

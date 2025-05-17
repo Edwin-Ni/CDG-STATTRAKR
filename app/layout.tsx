@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Load the pixel font
+const pixelFont = Press_Start_2P({
+  weight: "400",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-pixel",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "CDG Stat Tracker",
-  description: "Some friendly competition :)",
+  title: "StatTrack AK47",
+  description: "Track contributions to SPORTSHUB with a gamified experience",
 };
 
 export default function RootLayout({
@@ -23,17 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* <header className="bg-gray-900 text-white p-4">
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold">CDG Stat Tracker</h1>
-            <p className="text-sm">Some friendly competition :)</p>
-          </div>
-        </header> */}
-        <main className="container mx-auto p-4">{children}</main>
+    <html lang="en" className={pixelFont.variable}>
+      <body className="bg-[#1e1f2e] text-white">
+        <main>{children}</main>
       </body>
     </html>
   );
