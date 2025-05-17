@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, lazy } from "react";
+import ActionForm from "./ActionForm";
 import CountdownTimer from "./CountdownTimer";
 
 // Lazy load components
@@ -73,6 +74,14 @@ export default function ClientHomeWrapper() {
       {/* Monthly reset countdown */}
       <CountdownTimer />
 
+      {/* Action Form */}
+      <section>
+        <h2 className="text-3xl font-bold mb-4 text-[#e74c3c] uppercase tracking-wider pixel-font">
+          New Quest
+        </h2>
+        <ActionForm />
+      </section>
+
       <section>
         <h2 className="text-3xl font-bold mb-4 text-[#7eb8da] uppercase tracking-wider pixel-font">
           Leaderboard
@@ -91,7 +100,6 @@ export default function ClientHomeWrapper() {
         </Suspense>
       </section>
 
-      {/* Achievements */}
       {/* <div className="grid grid-cols-3 gap-4 mt-2">
         <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-4 flex items-center space-x-3">
           <div className="text-4xl">🏆</div>
@@ -128,7 +136,6 @@ export default function ClientHomeWrapper() {
         </div>
       </div> */}
 
-      {/* Footer */}
       {/* <footer className="mt-8 pt-6 border-t-2 border-[#3d3f5a] text-center text-[#7eb8da] pixel-font">
         <div className="text-xl uppercase tracking-widest mb-2">
           PIXEL DASH | Level up. Play more. Conquer the leaderboard.

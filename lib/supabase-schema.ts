@@ -100,14 +100,19 @@ export async function archiveMonthlyLeaderboard(
   }
 
   // Insert into monthly leaderboard archive
-  const archiveEntries = leaderboardData.map((entry, index) => ({
-    user_id: entry.user_id,
-    year,
-    month,
-    total_points: entry.points,
-    action_count: entry.action_count,
-    rank: index + 1,
-  }));
+  const archiveEntries = leaderboardData.map(
+    (
+      entry: { user_id: string; points: number; action_count: number },
+      index: number
+    ) => ({
+      user_id: entry.user_id,
+      year,
+      month,
+      total_points: entry.points,
+      action_count: entry.action_count,
+      rank: index + 1,
+    })
+  );
 
   const { error: insertError } = await supabase
     .from("monthly_leaderboards")
