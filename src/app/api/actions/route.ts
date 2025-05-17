@@ -1,17 +1,10 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic"; // Don't cache this route
+
 export async function GET() {
   try {
-    // In a real implementation, you'd fetch this from Supabase
-    // const { data, error } = await supabase
-    //   .from('actions')
-    //   .select('id, user_id, type, points, metadata, created_at, users(username)')
-    //   .order('created_at', { ascending: false })
-    //   .limit(10);
-
-    // if (error) throw error;
-
-    // Mock data for now
+    // Mock data for now - will be replaced with Supabase fetch
     const data = [
       {
         id: "1",
@@ -38,6 +31,9 @@ export async function GET() {
         description: "Opened issue #456",
       },
     ];
+
+    // Add a slight delay to simulate a real API call
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     return NextResponse.json({ data });
   } catch (error) {
