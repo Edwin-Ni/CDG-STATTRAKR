@@ -20,8 +20,8 @@ export default function Navbar() {
   return (
     <nav className="bg-[#1e1f2e] border-b-2 border-[#3d3f5a] py-3 px-6">
       <div className="flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-[#7eb8da] pixel-font">
-          STATTRACK FN AK47 REDLINE
+        <Link href="/" className="text-2xl font-bold text-[#e74c3c] pixel-font">
+          CDG STAT TRACKER
         </Link>
 
         <div className="flex items-center space-x-4">

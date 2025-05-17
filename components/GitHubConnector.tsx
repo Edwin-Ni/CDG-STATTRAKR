@@ -88,7 +88,10 @@ export default function GitHubConnector() {
       </form>
 
       <div className="mt-4 text-[#7eb8da] text-sm pixel-font">
-        <p>After connecting, add this webhook to your GitHub repositories:</p>
+        <p>
+          After connecting, ensure this webhook is added to your GitHub
+          repositories:
+        </p>
         <div className="bg-[#262840] p-2 mt-2 rounded-md overflow-x-auto">
           <code className="text-[#ffce63]">
             {typeof window !== "undefined"

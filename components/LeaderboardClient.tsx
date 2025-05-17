@@ -77,7 +77,7 @@ export default function LeaderboardClient() {
         </div>
         <div className="flex gap-2">
           <button className="bg-[#1e1f2e] text-[#7eb8da] border-2 border-[#7eb8da] px-3 py-1 rounded-md hover:bg-[#262840] pixel-font text-md">
-            This Week
+            This Month
           </button>
           <button className="bg-[#ffce63] text-[#1e1f2e] border-2 border-[#ffce63] px-3 py-1 rounded-md hover:bg-[#e5b958] pixel-font text-md">
             All Time
@@ -110,7 +110,14 @@ export default function LeaderboardClient() {
               <tr key={entry.id} className="hover:bg-[#262840]">
                 <td className="px-6 py-4 whitespace-nowrap text-md text-[#7eb8da] font-bold pixel-font">
                   {index === 0 ? (
-                    <span className="text-[#ffce63]">{index + 1} 👑</span>
+                    <div className="flex items-center">
+                      <span className="text-[#ffce63] mr-1">{index + 1}</span>
+                      <img
+                        src="/images/crown.png"
+                        alt="Crown"
+                        className="w-10 h-10 inline-block"
+                      />
+                    </div>
                   ) : (
                     index + 1
                   )}

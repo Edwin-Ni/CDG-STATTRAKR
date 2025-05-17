@@ -2,27 +2,41 @@
 
 import { useState } from "react";
 import { getCurrentUser } from "../lib/auth";
-import { createAction } from "../lib/db";
+import { createAction, getUserById } from "../lib/db";
 
 type ActionType =
   | "github_commit"
-  | "github_pull_request"
-  | "github_issue"
-  | "github_code_review";
+  | "github_pr_opened"
+  | "github_pr_merged"
+  | "github_pr_review";
 
+// Updated point values based on the provided table
 const actionPoints = {
-  github_commit: 5,
-  github_pull_request: 10,
-  github_issue: 3,
-  github_code_review: 7,
+  github_commit: 1,
+  github_pr_opened: 5,
+  github_pr_merged: 8,
+  github_pr_review: 3, // Using the higher value for PR review with approval
+};
+
+// Tags for additional points
+type TagType = "bug" | "feature" | "hotfix" | "refactor" | "";
+
+const tagPoints = {
+  bug: 5,
+  feature: 6,
+  hotfix: 6,
+  refactor: 4,
+  "": 0,
 };
 
 export default function ActionForm() {
   const [type, setType] = useState<ActionType>("github_commit");
+  const [tag, setTag] = useState<TagType>("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successPoints, setSuccessPoints] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,25 +45,38 @@ export default function ActionForm() {
     setSuccess(false);
 
     try {
-      const user = await getCurrentUser();
+      const authUser = await getCurrentUser();
 
-      if (!user) {
+      if (!authUser) {
         setError("You must be logged in to submit an action");
         setLoading(false);
         return;
       }
 
+      // Get the complete user profile from the database to get the username
+      const userProfile = await getUserById(authUser.id);
+
+      // Calculate total points (base action points + tag points if any)
+      const basePoints = actionPoints[type];
+      const additionalPoints = tag ? tagPoints[tag] : 0;
+      const totalPoints = basePoints + additionalPoints;
+
+      // Include tag in description if selected
+      const fullDescription = tag ? `${description} #${tag}` : description;
+
       await createAction({
-        user_id: user.id,
-        username: user.email || "Unknown User",
+        user_id: authUser.id,
+        username: userProfile.username,
         type,
-        points: actionPoints[type],
-        description,
+        points: totalPoints,
+        description: fullDescription,
       });
 
+      setSuccessPoints(totalPoints);
       setSuccess(true);
       setDescription("");
       setType("github_commit");
+      setTag("");
     } catch (err) {
       setError("Failed to submit action. Please try again.");
       console.error(err);
@@ -66,7 +93,7 @@ export default function ActionForm() {
 
       {success && (
         <div className="bg-[#2ecc71] text-white p-3 rounded-md mb-4 pixel-font">
-          Quest logged successfully! +{actionPoints[type]} XP
+          Quest logged successfully! +{successPoints} XP
         </div>
       )}
 
@@ -87,10 +114,28 @@ export default function ActionForm() {
             className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
             disabled={loading}
           >
-            <option value="github_commit">GitHub Commit (+5 XP)</option>
-            <option value="github_pull_request">Pull Request (+10 XP)</option>
-            <option value="github_issue">Issue Report (+3 XP)</option>
-            <option value="github_code_review">Code Review (+7 XP)</option>
+            <option value="github_commit">Commit (+1 XP)</option>
+            <option value="github_pr_opened">PR Opened (+5 XP)</option>
+            <option value="github_pr_merged">PR Merged (+8 XP)</option>
+            <option value="github_pr_review">PR Review (+3 XP)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[#7eb8da] mb-2 pixel-font">
+            Tag (Optional)
+          </label>
+          <select
+            value={tag}
+            onChange={(e) => setTag(e.target.value as TagType)}
+            className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
+            disabled={loading}
+          >
+            <option value="">No Tag</option>
+            <option value="bug">Bug Fix (+5 XP)</option>
+            <option value="feature">Feature (+6 XP)</option>
+            <option value="hotfix">Hotfix (+6 XP)</option>
+            <option value="refactor">Refactor (+4 XP)</option>
           </select>
         </div>
 

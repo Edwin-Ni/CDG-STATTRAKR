@@ -58,7 +58,8 @@ export default function ProfilePage() {
               </div>
 
               <p className="mt-4 text-[#ffce63]">
-                Your activities will now automatically earn XP in the game!
+                Your activities will now be automatically tracked and you will
+                earn XP!
               </p>
             </div>
           </div>

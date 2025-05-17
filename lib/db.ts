@@ -57,6 +57,17 @@ export async function createAction(action: Omit<Action, "id" | "created_at">) {
     throw new Error("Failed to create action");
   }
 
+  // Update the user's stats
+  const { error: updateError } = await supabase.rpc("increment_user_stats", {
+    p_user_id: action.user_id,
+    p_points: action.points,
+  });
+
+  if (updateError) {
+    console.error("Error updating user stats:", updateError);
+    // Continue despite this error, as the action was created
+  }
+
   return data as Action;
 }
 

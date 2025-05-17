@@ -74,16 +74,8 @@ export default function ClientHomeWrapper() {
       {/* Monthly reset countdown */}
       <CountdownTimer />
 
-      {/* Action Form */}
       <section>
         <h2 className="text-3xl font-bold mb-4 text-[#e74c3c] uppercase tracking-wider pixel-font">
-          New Quest
-        </h2>
-        <ActionForm />
-      </section>
-
-      <section>
-        <h2 className="text-3xl font-bold mb-4 text-[#7eb8da] uppercase tracking-wider pixel-font">
           Leaderboard
         </h2>
         <Suspense fallback={<LeaderboardSkeleton />}>
@@ -98,6 +90,14 @@ export default function ClientHomeWrapper() {
         <Suspense fallback={<ActionLogSkeleton />}>
           <ActionLogClient />
         </Suspense>
+      </section>
+
+      {/* Action Form */}
+      <section>
+        <h2 className="text-3xl font-bold mb-4 text-[#e74c3c] uppercase tracking-wider pixel-font">
+          New Quest
+        </h2>
+        <ActionForm />
       </section>
 
       {/* <div className="grid grid-cols-3 gap-4 mt-2">
