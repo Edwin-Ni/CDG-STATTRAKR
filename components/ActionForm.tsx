@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getCurrentUser } from "../lib/auth";
 import { createAction, getUserById } from "../lib/db";
 
@@ -37,12 +37,25 @@ export default function ActionForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successPoints, setSuccessPoints] = useState(0);
+  const [refreshPending, setRefreshPending] = useState(false);
+
+  // Effect to handle auto-refresh after success
+  useEffect(() => {
+    if (refreshPending) {
+      const timer = setTimeout(() => {
+        window.location.reload();
+      }, 1500); // 1.5 second delay to show success message
+
+      return () => clearTimeout(timer);
+    }
+  }, [refreshPending]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(false);
+    setRefreshPending(false);
 
     try {
       const authUser = await getCurrentUser();
@@ -77,6 +90,7 @@ export default function ActionForm() {
       setDescription("");
       setType("github_commit");
       setTag("");
+      setRefreshPending(true); // Set flag to trigger refresh
     } catch (err) {
       setError("Failed to submit action. Please try again.");
       console.error(err);
@@ -94,6 +108,7 @@ export default function ActionForm() {
       {success && (
         <div className="bg-[#2ecc71] text-white p-3 rounded-md mb-4 pixel-font">
           Quest logged successfully! +{successPoints} XP
+          {refreshPending && <span className="ml-2">Refreshing...</span>}
         </div>
       )}
 
@@ -112,7 +127,7 @@ export default function ActionForm() {
             value={type}
             onChange={(e) => setType(e.target.value as ActionType)}
             className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
-            disabled={loading}
+            disabled={loading || refreshPending}
           >
             <option value="github_commit">Commit (+1 XP)</option>
             <option value="github_pr_opened">PR Opened (+5 XP)</option>
@@ -129,7 +144,7 @@ export default function ActionForm() {
             value={tag}
             onChange={(e) => setTag(e.target.value as TagType)}
             className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
-            disabled={loading}
+            disabled={loading || refreshPending}
           >
             <option value="">No Tag</option>
             <option value="bug">Bug Fix (+5 XP)</option>
@@ -149,16 +164,20 @@ export default function ActionForm() {
             className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
             rows={3}
             placeholder="Describe your quest..."
-            disabled={loading}
+            disabled={loading || refreshPending}
           />
         </div>
 
         <button
           type="submit"
           className="w-full bg-[#ffce63] text-[#1e1f2e] border-2 border-[#ffce63] py-2 rounded-md hover:bg-[#e5b958] pixel-font text-lg"
-          disabled={loading}
+          disabled={loading || refreshPending}
         >
-          {loading ? "Processing..." : "Submit Quest"}
+          {loading
+            ? "Processing..."
+            : refreshPending
+            ? "Refreshing..."
+            : "Submit Quest"}
         </button>
       </form>
     </div>
