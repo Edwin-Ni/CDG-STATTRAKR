@@ -146,7 +146,7 @@ export default function ClientHomeWrapper() {
 
       <section>
         <h2 className="text-3xl font-bold mb-4 text-[#e74c3c] uppercase tracking-wider pixel-font">
-          Leaderboard
+          Leaderboard hi
         </h2>
         <Suspense fallback={<LeaderboardSkeleton />}>
           <LeaderboardClient />
