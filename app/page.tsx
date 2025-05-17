@@ -1,4 +1,4 @@
-import ClientHomeWrapper from "@/components/ClientHomeWrapper";
+import ClientHomeWrapper from "../components/ClientHomeWrapper";
 
 export default function Home() {
   return <ClientHomeWrapper />;
