@@ -1,6 +1,8 @@
 "use client";
 
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { useAuth } from "../lib/authContext";
+import { getUserById } from "../lib/db";
 import ActionForm from "./ActionForm";
 import CountdownTimer from "./CountdownTimer";
 
@@ -34,42 +36,110 @@ function ActionLogSkeleton() {
   );
 }
 
+function StatsSkeleton() {
+  return (
+    <div className="grid grid-cols-4 gap-4 mb-2">
+      {[...Array(4)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-[#1e1f2e] border-2 border-[#3d3f5a] rounded-md p-3 text-center"
+        >
+          <div className="h-6 bg-[#262840] rounded-md w-2/3 mx-auto mb-2"></div>
+          <div className="h-8 bg-[#262840] rounded-md w-1/2 mx-auto"></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ClientHomeWrapper() {
+  const { user } = useAuth();
+  const [userStats, setUserStats] = useState<{
+    totalPoints: number;
+    actionCount: number;
+    level: number;
+    coins: number;
+    isLoading: boolean;
+  }>({
+    totalPoints: 0,
+    actionCount: 0,
+    level: 1,
+    coins: 0,
+    isLoading: true,
+  });
+
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      if (!user?.id) return;
+
+      try {
+        const userData = await getUserById(user.id);
+
+        // Calculate level based on XP (total_points) - match leaderboard calculation
+        const level = Math.floor(userData.total_points / 10) + 5;
+
+        // Mock coins: 100 * level + random factor
+        const coins = 100 * level + Math.floor(Math.random() * 50) * 10;
+
+        setUserStats({
+          totalPoints: userData.total_points,
+          actionCount: userData.action_count,
+          level,
+          coins,
+          isLoading: false,
+        });
+      } catch (error) {
+        console.error("Error fetching user stats:", error);
+        setUserStats((prev) => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    if (user?.id) {
+      fetchUserStats();
+    }
+  }, [user]);
+
   return (
     <div className="bg-[#1e1f2e] min-h-screen flex flex-col gap-8 p-6">
       {/* Stats Bar */}
-      <div className="grid grid-cols-4 gap-4 mb-2">
-        <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
-          <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
-            ⭐ Level
+      {userStats.isLoading ? (
+        <StatsSkeleton />
+      ) : (
+        <div className="grid grid-cols-4 gap-4 mb-2">
+          <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
+            <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
+              ⭐ Level
+            </div>
+            <div className="text-3xl font-bold text-[#ffce63] pixel-font">
+              {userStats.level}
+            </div>
           </div>
-          <div className="text-3xl font-bold text-[#ffce63] pixel-font">12</div>
+          <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-3 text-center">
+            <div className="text-md text-[#7eb8da] uppercase tracking-wider pixel-font">
+              ⚡ XP
+            </div>
+            <div className="text-3xl font-bold text-[#7eb8da] pixel-font">
+              {userStats.totalPoints.toLocaleString()}
+            </div>
+          </div>
+          <div className="bg-[#1e1f2e] border-2 border-[#e74c3c] rounded-md p-3 text-center">
+            <div className="text-md text-[#e74c3c] uppercase tracking-wider pixel-font">
+              📋 Quests
+            </div>
+            <div className="text-3xl font-bold text-[#e74c3c] pixel-font">
+              {userStats.actionCount}
+            </div>
+          </div>
+          <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
+            <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
+              💰 Coins
+            </div>
+            <div className="text-3xl font-bold text-[#ffce63] pixel-font">
+              {userStats.coins.toLocaleString()}
+            </div>
+          </div>
         </div>
-        <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-3 text-center">
-          <div className="text-md text-[#7eb8da] uppercase tracking-wider pixel-font">
-            ⚡ XP
-          </div>
-          <div className="text-3xl font-bold text-[#7eb8da] pixel-font">
-            2,450
-          </div>
-        </div>
-        <div className="bg-[#1e1f2e] border-2 border-[#e74c3c] rounded-md p-3 text-center">
-          <div className="text-md text-[#e74c3c] uppercase tracking-wider pixel-font">
-            📋 Quests
-          </div>
-          <div className="text-3xl font-bold text-[#e74c3c] pixel-font">
-            7/10
-          </div>
-        </div>
-        <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
-          <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
-            💰 Coins
-          </div>
-          <div className="text-3xl font-bold text-[#ffce63] pixel-font">
-            1,200
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Monthly reset countdown */}
       <CountdownTimer />

@@ -2,11 +2,35 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuth } from "../lib/authContext";
+import { getUserById } from "../lib/db";
 
 export default function Navbar() {
   const { user, signOut, loading } = useAuth();
   const router = useRouter();
+  const [username, setUsername] = useState<string>("");
+  const [usernameLoading, setUsernameLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (user?.id) {
+        setUsernameLoading(true);
+        try {
+          const userData = await getUserById(user.id);
+          setUsername(userData.username);
+        } catch (error) {
+          console.error("Error fetching username:", error);
+          // Fallback to email if username fetch fails
+          setUsername(user.email?.split("@")[0] || "User");
+        } finally {
+          setUsernameLoading(false);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -33,7 +57,11 @@ export default function Navbar() {
                 href="/profile"
                 className="text-[#ffce63] hover:text-[#e5b958] pixel-font"
               >
-                {user.email?.split("@")[0]}
+                {usernameLoading ? (
+                  <div className="h-3 w-20 bg-[#3d3f5a] rounded-full animate-pulse"></div>
+                ) : (
+                  username
+                )}
               </Link>
               <Link
                 href="/profile"

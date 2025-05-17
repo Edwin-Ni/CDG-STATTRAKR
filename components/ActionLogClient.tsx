@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type Action = {
@@ -60,16 +61,34 @@ export default function ActionLogClient() {
     );
   }
 
-  // Map action types to corresponding quest icons
+  // Map action types to corresponding quest icons or images
   const getActionIcon = (type: string) => {
     switch (type) {
       case "github_commit":
-        return "📝";
-      case "github_pull_request":
+        return (
+          <Image
+            src="/images/commit.png"
+            alt="Commit"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+        );
+      case "github_pr_opened":
+        return (
+          <Image
+            src="/images/opening_pr.png"
+            alt="PR Opened"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+        );
+      case "github_pr_merged":
         return "🔀";
       case "github_issue":
         return "🐛";
-      case "github_code_review":
+      case "github_pr_review":
         return "👀";
       default:
         return "✨";

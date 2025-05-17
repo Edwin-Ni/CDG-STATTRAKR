@@ -28,6 +28,17 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/* Add pointer cursor to clickable elements */
+button,
+a,
+select,
+input[type="submit"],
+input[type="button"],
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
 /* Import a pixel font */
 @font-face {
   font-family: "Press Start 2P";
