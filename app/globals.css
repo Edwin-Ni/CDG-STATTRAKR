@@ -64,6 +64,18 @@ table td.pixel-font {
   font-size: 110%;
 }
 
+/* Fix for ordered lists */
+ol.list-decimal {
+  list-style-position: inside;
+  padding-left: 0.5rem;
+}
+
+ol.list-decimal li {
+  padding-left: 0.5rem;
+  text-indent: -1.5rem;
+  margin-left: 1rem;
+}
+
 /* Custom scrollbar for pixel art feel */
 ::-webkit-scrollbar {
   width: 12px;

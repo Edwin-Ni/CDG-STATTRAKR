@@ -20,18 +20,42 @@ export default function ProfilePage() {
             <div className="space-y-3 text-[#ffffff] pixel-font">
               <p>To track your GitHub contributions automatically:</p>
 
-              <ol className="list-decimal ml-5 space-y-2">
-                <li>Connect your GitHub username above</li>
-                <li>Go to your GitHub repository's Settings</li>
-                <li>Click on "Webhooks" in the sidebar</li>
-                <li>Click "Add webhook"</li>
-                <li>Set Payload URL to the webhook URL shown above</li>
-                <li>Set Content type to "application/json"</li>
-                <li>
-                  Select events: Push, Pull Requests, Issues, Issue Comments
-                </li>
-                <li>Click "Add webhook"</li>
-              </ol>
+              <div className="space-y-2 ml-4">
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">1.</div>
+                  <div>Connect your GitHub username above</div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">2.</div>
+                  <div>Go to your GitHub repository's Settings</div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">3.</div>
+                  <div>Click on "Webhooks" in the sidebar</div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">4.</div>
+                  <div>Click "Add webhook"</div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">5.</div>
+                  <div>Set Payload URL to the webhook URL shown above</div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">6.</div>
+                  <div>Set Content type to "application/json"</div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">7.</div>
+                  <div>
+                    Select events: Push, Pull Requests, Issues, Issue Comments
+                  </div>
+                </div>
+                <div className="flex">
+                  <div className="text-[#ffce63] mr-2">8.</div>
+                  <div>Click "Add webhook"</div>
+                </div>
+              </div>
 
               <p className="mt-4 text-[#ffce63]">
                 Your activities will now automatically earn XP in the game!
