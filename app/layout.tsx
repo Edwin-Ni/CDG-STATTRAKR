@@ -13,8 +13,8 @@ const pixelFont = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: "StatTrack AK47",
-  description: "Track contributions to SPORTSHUB with a gamified experience",
+  title: "CDG STATTRAKR",
+  description: "Solo levelling typa shyt",
 };
 
 export default function RootLayout({
