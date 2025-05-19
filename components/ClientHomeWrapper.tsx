@@ -141,7 +141,7 @@ export default function ClientHomeWrapper() {
         </div>
       )}
 
-      {/* Monthly reset countdown test */}
+      {/* Monthly reset countdown*/}
       <CountdownTimer />
 
       <section>
