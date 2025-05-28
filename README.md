@@ -1,6 +1,6 @@
-# StatTrack AK47
+# CDG STATTRAKR
 
-This project is for my friends and I to track our contributions to SPORTSHUB. For now lets track some simple actions in GitHub. I will store these actions in Supabase and award points to the user that performed the action. We need a leaderboard on the home page followed by a log of all the actions associated with it.
+This project is to track our work and get that extra motivation. For now lets track some simple actions in GitHub. I will store these actions in Supabase and award points to the user that performed the action. We need a leaderboard on the home page followed by a log of all the actions associated with it.
 
 ## Tech Stack
 
