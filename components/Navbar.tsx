@@ -32,20 +32,11 @@ export default function Navbar() {
     fetchUsername();
   }, [user]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.push("/auth");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
   return (
     <nav className="bg-[#1e1f2e] border-b-2 border-[#3d3f5a] py-3 px-6">
       <div className="flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-[#e74c3c] pixel-font">
-          CDG STATTRAKR
+          CDG
         </Link>
 
         <div className="flex items-center space-x-4">
@@ -55,7 +46,7 @@ export default function Navbar() {
             <div className="flex items-center space-x-4">
               <Link
                 href="/profile"
-                className="text-[#ffce63] hover:text-[#e5b958] pixel-font"
+                className="text-[#ffce63] hover:text-[#e5b958] pixel-font hidden sm:block"
               >
                 {usernameLoading ? (
                   <div className="h-3 w-20 bg-[#3d3f5a] rounded-full animate-pulse"></div>
@@ -69,12 +60,6 @@ export default function Navbar() {
               >
                 PROFILE
               </Link>
-              <button
-                onClick={handleSignOut}
-                className="bg-[#e74c3c] hover:bg-[#c0392b] text-white px-3 py-1 rounded-md pixel-font text-sm"
-              >
-                LOGOUT
-              </button>
             </div>
           ) : (
             <Link
