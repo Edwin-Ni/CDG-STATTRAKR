@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/authContext";
 import { getUserById } from "../lib/db";
 
 export default function Navbar() {
-  const { user, signOut, loading } = useAuth();
-  const router = useRouter();
+  const { user, loading } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [usernameLoading, setUsernameLoading] = useState<boolean>(false);
 
@@ -36,7 +34,8 @@ export default function Navbar() {
     <nav className="bg-[#1e1f2e] border-b-2 border-[#3d3f5a] py-3 px-6">
       <div className="flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-[#e74c3c] pixel-font">
-          CDG
+          <div className="sm:hidden">CDG</div>
+          <div className="hidden sm:block">CDG STATTRAKR</div>
         </Link>
 
         <div className="flex items-center space-x-4">
