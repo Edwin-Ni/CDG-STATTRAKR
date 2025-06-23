@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         if (reviewState === "approved") {
           xp = XP_VALUES.pull_request_review;
         } else {
-          xp = 2; // Comment-only review gets 2 XP
+          xp = 2;
         }
         description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name}`;
         questType = "github_pr_review";
