@@ -27,7 +27,7 @@ export default function GitHubConnector() {
       // Update user record with GitHub username
       const { error: updateError } = await supabase
         .from("users")
-        .update({ username: githubUsername })
+        .update({ github_username: githubUsername })
         .eq("id", user.id);
 
       if (updateError) {
