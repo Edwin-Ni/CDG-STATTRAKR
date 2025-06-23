@@ -301,6 +301,12 @@ create policy "Users can update own record"
   for update
   using (auth.uid() = id);
 
+-- Service role can update any user (for webhooks, automated processes)
+create policy "Service role can update users"
+  on public.users
+  for update
+  using (auth.jwt() ->> 'role' = 'service_role');
+
 -- Quests table policies
 create policy "Quests are viewable by everyone"
   on public.quests
@@ -311,6 +317,12 @@ create policy "Users can insert their own quests"
   on public.quests
   for insert
   with check (auth.uid() = user_id);
+
+-- Service role can insert any quest (for webhooks)
+create policy "Service role can insert quests"
+  on public.quests
+  for insert
+  using (auth.jwt() ->> 'role' = 'service_role');
 
 -- Levels table policies
 create policy "Levels are viewable by everyone"
@@ -328,6 +340,12 @@ create policy "Users can update their own level ups"
   on public.level_ups
   for update
   using (auth.uid() = user_id);
+
+-- Service role can insert level ups (for automated level-up system)
+create policy "Service role can insert level ups"
+  on public.level_ups
+  for insert
+  using (auth.jwt() ->> 'role' = 'service_role');
 
 -- Enable Supabase Auth hooks to create user profile on signup
 create or replace function public.handle_new_user()

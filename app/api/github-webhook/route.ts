@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "../../../lib/supabase";
+import { supabaseAdmin } from "../../../lib/supabase";
 
 // Updated XP values for different GitHub events based on the provided table
 const XP_VALUES = {
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
     }
 
     // Find user by GitHub username
-    const { data: users, error: userError } = await supabase
+    const { data: users, error: userError } = await supabaseAdmin
       .from("users")
       .select("*")
       .eq("github_username", github_username);
@@ -138,7 +138,7 @@ export async function POST(req: Request) {
     const user = users[0];
 
     // Insert the new quest
-    const { error: questError } = await supabase.from("quests").insert({
+    const { error: questError } = await supabaseAdmin.from("quests").insert({
       user_id: user.id,
       username: github_username,
       source: "github",
@@ -156,7 +156,7 @@ export async function POST(req: Request) {
     }
 
     // Update user stats
-    const { error: updateError } = await supabase.rpc(
+    const { error: updateError } = await supabaseAdmin.rpc(
       "increment_user_stats_with_levelup",
       {
         p_user_id: user.id,
