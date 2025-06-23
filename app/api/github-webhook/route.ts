@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 
-// Updated points for different GitHub events based on the provided table
-const POINTS = {
-  push: 1, // Commits (push event) - now 1 point
+// Updated XP values for different GitHub events based on the provided table
+const XP_VALUES = {
+  push: 1, // Commits (push event) - now 1 XP
   pull_request_opened: 5, // Opening a PR
   pull_request_merged: 8, // Merging a PR
   pull_request_review: 3, // PR review with approval
@@ -11,8 +11,8 @@ const POINTS = {
   issue_comment: 2, // Comments
 };
 
-// Tags for additional points
-const TAG_POINTS = {
+// Tags for additional XP
+const TAG_XP = {
   bug: 5,
   feature: 6,
   hotfix: 6,
@@ -45,31 +45,29 @@ export async function POST(req: Request) {
       );
     }
 
-    let username = "";
+    let github_username = payload.sender.login || "";
     let description = "";
-    let points = 0;
-    let actionType = "";
+    let xp = 0;
+    let questType = "";
 
     // Extract details based on event type
     switch (event) {
       case "push":
-        username = payload.sender.login;
         const commitCount = payload.commits?.length || 1;
-        points = POINTS.push * commitCount; // Points per commit
+        xp = XP_VALUES.push * commitCount; // XP per commit
         description = `Pushed ${commitCount} commit(s) to ${payload.repository.name}`;
-        actionType = "github_commit";
+        questType = "github_commit";
         break;
 
       case "pull_request":
-        username = payload.sender.login;
         const prAction = payload.action;
 
         if (prAction === "opened") {
-          points = POINTS.pull_request_opened;
-          actionType = "github_pr_opened";
+          xp = XP_VALUES.pull_request_opened;
+          questType = "github_pr_opened";
         } else if (prAction === "closed" && payload.pull_request?.merged) {
-          points = POINTS.pull_request_merged;
-          actionType = "github_pr_merged";
+          xp = XP_VALUES.pull_request_merged;
+          questType = "github_pr_merged";
         } else {
           return NextResponse.json(
             { message: "Unsupported PR action" },
@@ -85,40 +83,37 @@ export async function POST(req: Request) {
         const fullText = `${prTitle} ${prBody}`;
         const tags = extractTags(fullText);
 
-        // Add tag points and include tag in description
+        // Add tag XP and include tag in description
         if (tags.length > 0) {
           const tag = tags[0]; // Just use the first tag found
-          if (TAG_POINTS[tag as keyof typeof TAG_POINTS]) {
-            points += TAG_POINTS[tag as keyof typeof TAG_POINTS];
+          if (TAG_XP[tag as keyof typeof TAG_XP]) {
+            xp += TAG_XP[tag as keyof typeof TAG_XP];
             description += ` #${tag}`;
           }
         }
         break;
 
       case "issues":
-        username = payload.sender.login;
         description = `${payload.action} issue #${payload.issue.number} in ${payload.repository.name}`;
-        points = POINTS.issues;
-        actionType = "github_issue";
+        xp = XP_VALUES.issues;
+        questType = "github_issue";
         break;
 
       case "issue_comment":
-        username = payload.sender.login;
         description = `Commented on #${payload.issue.number} in ${payload.repository.name}`;
-        points = POINTS.issue_comment;
-        actionType = "github_issue_comment";
+        xp = XP_VALUES.issue_comment;
+        questType = "github_issue_comment";
         break;
 
       case "pull_request_review":
-        username = payload.sender.login;
         const reviewState = payload.review?.state || "";
         if (reviewState === "approved") {
-          points = POINTS.pull_request_review;
+          xp = XP_VALUES.pull_request_review;
         } else {
-          points = 2; // Comment-only review gets 2 points
+          xp = 2; // Comment-only review gets 2 XP
         }
         description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name}`;
-        actionType = "github_pr_review";
+        questType = "github_pr_review";
         break;
 
       default:
@@ -132,37 +127,41 @@ export async function POST(req: Request) {
     const { data: users, error: userError } = await supabase
       .from("users")
       .select("*")
-      .eq("username", username);
+      .eq("github_username", github_username);
 
     if (userError || !users || users.length === 0) {
-      console.error("User not found:", username);
+      console.error("User not found:", github_username);
       return NextResponse.json({ message: "User not found" }, { status: 200 });
     }
 
     const user = users[0];
 
-    // Insert the new action
-    const { error: actionError } = await supabase.from("actions").insert({
+    // Insert the new quest
+    const { error: questError } = await supabase.from("quests").insert({
       user_id: user.id,
-      username: username,
-      type: actionType,
-      points: points,
+      username: github_username,
+      source: "github",
+      type: questType,
+      xp: xp,
       description: description,
     });
 
-    if (actionError) {
-      console.error("Error creating action:", actionError);
+    if (questError) {
+      console.error("Error creating quest:", questError);
       return NextResponse.json(
-        { message: "Error creating action" },
+        { message: "Error creating quest" },
         { status: 500 }
       );
     }
 
     // Update user stats
-    const { error: updateError } = await supabase.rpc("increment_user_stats", {
-      p_user_id: user.id,
-      p_points: points,
-    });
+    const { error: updateError } = await supabase.rpc(
+      "increment_user_stats_with_levelup",
+      {
+        p_user_id: user.id,
+        p_xp: xp,
+      }
+    );
 
     if (updateError) {
       console.error("Error updating user stats:", updateError);
@@ -172,8 +171,8 @@ export async function POST(req: Request) {
       success: true,
       message: "Event processed successfully",
       event,
-      points,
-      username,
+      xp,
+      github_username,
       description,
     });
   } catch (error) {

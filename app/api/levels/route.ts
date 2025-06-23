@@ -5,25 +5,25 @@ export const dynamic = "force-dynamic"; // Don't cache this route
 
 export async function GET() {
   try {
-    // Get all users ordered by total XP
-    const { data: users, error: usersError } = await supabase
-      .from("users")
+    // Get all levels ordered by level number
+    const { data: levels, error: levelsError } = await supabase
+      .from("levels")
       .select("*")
-      .order("total_xp", { ascending: false });
+      .order("level", { ascending: true });
 
-    if (usersError) {
-      console.error("Error fetching users:", usersError);
+    if (levelsError) {
+      console.error("Error fetching levels:", levelsError);
       return NextResponse.json(
-        { error: "Failed to fetch leaderboard data" },
+        { error: "Failed to fetch levels" },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
-      data: users,
+      data: levels,
     });
   } catch (error) {
-    console.error("Unexpected error in leaderboard route:", error);
+    console.error("Unexpected error in levels route:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

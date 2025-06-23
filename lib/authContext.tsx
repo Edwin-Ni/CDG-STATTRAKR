@@ -105,3 +105,14 @@ export function useAuth() {
   }
   return context;
 }
+
+export async function getCurrentUser() {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    console.error("Error getting user:", error);
+    return null;
+  }
+
+  return data.user;
+}

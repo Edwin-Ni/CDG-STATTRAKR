@@ -5,24 +5,24 @@ export const dynamic = "force-dynamic"; // Don't cache this route
 
 export async function GET() {
   try {
-    // Get most recent actions
+    // Get most recent quests
     const { data, error } = await supabase
-      .from("actions")
+      .from("quests")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(20);
 
     if (error) {
-      console.error("Error fetching actions:", error);
+      console.error("Error fetching quests:", error);
       return NextResponse.json(
-        { error: "Failed to fetch action data" },
+        { error: "Failed to fetch quest data" },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error("Unexpected error in actions route:", error);
+    console.error("Unexpected error in quests route:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -33,51 +33,55 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { user_id, username, type, points, description } = body;
+    const { user_id, username, type, xp, description } = body;
 
     // Validate required fields
-    if (!user_id || !username || !type || !points) {
+    if (!user_id || !username || !type || !xp) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Insert the new action
-    const { data: action, error: actionError } = await supabase
-      .from("actions")
+    // Insert the new quest
+    const { data: quest, error: questError } = await supabase
+      .from("quests")
       .insert({
         user_id,
         username,
+        source: "manual",
         type,
-        points,
+        xp,
         description: description || "",
       })
       .select()
       .single();
 
-    if (actionError) {
-      console.error("Error creating action:", actionError);
+    if (questError) {
+      console.error("Error creating quest:", questError);
       return NextResponse.json(
-        { error: "Failed to create action" },
+        { error: "Failed to create quest" },
         { status: 500 }
       );
     }
 
-    // Update the user's total points and action count
-    const { error: userError } = await supabase.rpc("increment_user_stats", {
-      p_user_id: user_id,
-      p_points: points,
-    });
+    // Update the user's total XP and quest count
+    const { error: userError } = await supabase.rpc(
+      "increment_user_stats_with_levelup",
+      {
+        p_user_id: user_id,
+        p_xp: xp,
+      }
+    );
 
     if (userError) {
       console.error("Error updating user stats:", userError);
-      // Continue despite this error, as the action was created
+      // Continue despite this error, as the quest was created
     }
 
-    return NextResponse.json({ data: action }, { status: 201 });
+    return NextResponse.json({ data: quest }, { status: 201 });
   } catch (error) {
-    console.error("Unexpected error in actions POST route:", error);
+    console.error("Unexpected error in quests POST route:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

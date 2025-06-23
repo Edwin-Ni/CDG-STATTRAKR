@@ -5,18 +5,14 @@ import { useEffect, useState } from "react";
 type LeaderboardEntry = {
   id: string;
   username: string;
-  total_points: number;
-  action_count: number;
-};
-
-type ResetInfo = {
-  lastReset: string;
-  nextReset: string;
+  total_xp: number;
+  level: number;
+  quest_count: number;
 };
 
 export default function LeaderboardClient() {
   const [data, setData] = useState<LeaderboardEntry[]>([]);
-  const [resetInfo, setResetInfo] = useState<ResetInfo | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +28,6 @@ export default function LeaderboardClient() {
 
         const json = await response.json();
         setData(json.data);
-        setResetInfo(json.resetInfo);
       } catch (err) {
         console.error("Error fetching leaderboard:", err);
         setError("Failed to load leaderboard");
@@ -65,16 +60,12 @@ export default function LeaderboardClient() {
     );
   }
 
-  const lastResetDate = resetInfo
-    ? new Date(resetInfo.lastReset).toLocaleDateString()
-    : "Unknown";
-
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center mb-4">
-        <div className="text-md text-[#7eb8da] italic pixel-font">
-          Current standings since {lastResetDate}
-        </div>
+        {/* <div className="text-md text-[#7eb8da] italic pixel-font">
+          Current standings
+        </div> */}
         <div className="flex gap-2">
           <button className="bg-[#1e1f2e] text-[#7eb8da] border-2 border-[#7eb8da] px-3 py-1 rounded-md hover:bg-[#262840] pixel-font text-md">
             This Month
@@ -128,13 +119,13 @@ export default function LeaderboardClient() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-md text-[#7eb8da] pixel-font">
-                  {Math.floor(entry.total_points / 10) + 5}
+                  {entry.level}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-md text-[#ffce63] pixel-font">
-                  {entry.total_points}
+                  {entry.total_xp}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-md text-[#e74c3c] pixel-font">
-                  {entry.action_count}
+                  {entry.quest_count}
                 </td>
               </tr>
             ))}

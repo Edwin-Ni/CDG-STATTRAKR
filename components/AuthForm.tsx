@@ -11,6 +11,7 @@ export default function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { signIn, signUp, resetPassword } = useAuth();
@@ -18,6 +19,7 @@ export default function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
@@ -26,10 +28,12 @@ export default function AuthForm() {
         router.push("/");
       } else if (mode === "signup") {
         await signUp(email, password);
-        router.push("/");
+        setSuccess(
+          "Account created! Please check your email for verification."
+        );
       } else if (mode === "reset") {
         await resetPassword(email);
-        setError(
+        setSuccess(
           "Password reset email sent! Check your inbox for instructions."
         );
       }
@@ -43,6 +47,13 @@ export default function AuthForm() {
   const toggleMode = () => {
     setMode(mode === "login" ? "signup" : "login");
     setError(null);
+    setSuccess(null);
+  };
+
+  const handleModeChange = (newMode: AuthMode) => {
+    setMode(newMode);
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -54,7 +65,7 @@ export default function AuthForm() {
               ? "bg-[#7eb8da] text-[#1e1f2e] font-bold"
               : "text-[#7eb8da]"
           }`}
-          onClick={() => setMode("login")}
+          onClick={() => handleModeChange("login")}
           disabled={loading}
         >
           LOGIN
@@ -65,39 +76,28 @@ export default function AuthForm() {
               ? "bg-[#7eb8da] text-[#1e1f2e] font-bold"
               : "text-[#7eb8da]"
           }`}
-          onClick={() => setMode("signup")}
+          onClick={() => handleModeChange("signup")}
           disabled={loading}
         >
           SIGN UP
         </button>
-        {/* <button
-          className={`px-3 py-2 rounded-md text-sm pixel-font ${
-            mode === "reset"
-              ? "bg-[#7eb8da] text-[#1e1f2e] font-bold"
-              : "text-[#7eb8da]"
-          }`}
-          onClick={() => setMode("reset")}
-          disabled={loading}
-        >
-          RESET
-        </button> */}
       </div>
 
-      {mode === "reset" && !error && (
+      {mode === "reset" && !error && !success && (
         <div className="bg-[#3d3f5a] text-[#7eb8da] p-3 mb-4 rounded-md pixel-font text-sm">
           Enter your email address and we'll send you a link to reset your
           password.
         </div>
       )}
 
+      {success && (
+        <div className="bg-[#27ae60] text-white p-3 mb-4 rounded-md pixel-font">
+          {success}
+        </div>
+      )}
+
       {error && (
-        <div
-          className={`p-3 mb-4 rounded-md pixel-font ${
-            error.includes("Password reset email sent")
-              ? "bg-[#27ae60] text-white"
-              : "bg-[#e74c3c] text-white"
-          }`}
-        >
+        <div className="bg-[#e74c3c] text-white p-3 mb-4 rounded-md pixel-font">
           {error}
         </div>
       )}
@@ -149,7 +149,7 @@ export default function AuthForm() {
       <div className="mt-4 text-center space-y-2">
         {mode === "reset" ? (
           <button
-            onClick={() => setMode("login")}
+            onClick={() => handleModeChange("login")}
             className="text-[#7eb8da] hover:text-[#ffce63] pixel-font"
             disabled={loading}
           >
@@ -167,7 +167,7 @@ export default function AuthForm() {
                 : "Already have an account? Login!"}
             </button> */}
             <button
-              onClick={() => setMode("reset")}
+              onClick={() => handleModeChange("reset")}
               className="text-[#ffce63] hover:text-[#7eb8da] pixel-font text-sm"
               disabled={loading}
             >

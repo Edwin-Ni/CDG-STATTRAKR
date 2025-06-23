@@ -1,34 +1,5 @@
-import type { Action, User } from "../types/database";
+import type { Level, LevelUp, Quest, User } from "../types/database";
 import { supabase } from "./supabase";
-
-export async function getLeaderboard() {
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .order("total_points", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching leaderboard:", error);
-    throw new Error("Failed to fetch leaderboard");
-  }
-
-  return data as User[];
-}
-
-export async function getRecentActions(limit = 20) {
-  const { data, error } = await supabase
-    .from("actions")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    console.error("Error fetching recent actions:", error);
-    throw new Error("Failed to fetch recent actions");
-  }
-
-  return data as Action[];
-}
 
 export async function getUserById(userId: string) {
   const { data, error } = await supabase
@@ -45,55 +16,155 @@ export async function getUserById(userId: string) {
   return data as User;
 }
 
-export async function createAction(action: Omit<Action, "id" | "created_at">) {
+export async function getAllLevels(): Promise<Level[]> {
   const { data, error } = await supabase
-    .from("actions")
-    .insert(action)
+    .from("levels")
+    .select("*")
+    .order("level", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching levels:", error);
+    throw new Error("Failed to fetch levels");
+  }
+
+  return data as Level[];
+}
+
+export async function getLevelByNumber(level: number): Promise<Level | null> {
+  const { data, error } = await supabase
+    .from("levels")
+    .select("*")
+    .eq("level", level)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      // No rows returned
+      return null;
+    }
+    console.error("Error fetching level:", error);
+    throw new Error("Failed to fetch level");
+  }
+
+  return data as Level;
+}
+
+export async function getLevelForXp(xp: number): Promise<Level> {
+  const { data, error } = await supabase.rpc("get_level_for_xp", { xp });
+
+  if (error) {
+    console.error("Error calculating level for XP:", error);
+    throw new Error("Failed to calculate level");
+  }
+
+  // Get the full level details
+  const level = await getLevelByNumber(data);
+  if (!level) {
+    throw new Error("Level not found");
+  }
+
+  return level;
+}
+
+export async function getXpToNextLevel(currentXp: number): Promise<number> {
+  const { data, error } = await supabase.rpc("get_xp_to_next_level", {
+    current_xp: currentXp,
+  });
+
+  if (error) {
+    console.error("Error calculating XP to next level:", error);
+    throw new Error("Failed to calculate XP to next level");
+  }
+
+  return data as number;
+}
+
+export async function createQuest(quest: Omit<Quest, "id" | "created_at">) {
+  const { data, error } = await supabase
+    .from("quests")
+    .insert(quest)
     .select()
     .single();
 
   if (error) {
-    console.error("Error creating action:", error);
-    throw new Error("Failed to create action");
+    console.error("Error creating quest:", error);
+    throw new Error("Failed to create quest");
   }
 
-  // Update the user's stats
-  const { error: updateError } = await supabase.rpc("increment_user_stats", {
-    p_user_id: action.user_id,
-    p_points: action.points,
-  });
+  // Update the user's stats and handle level-ups
+  const { error: updateError } = await supabase.rpc(
+    "increment_user_stats_with_levelup",
+    {
+      p_user_id: quest.user_id,
+      p_xp: quest.xp,
+    }
+  );
 
   if (updateError) {
     console.error("Error updating user stats:", updateError);
-    // Continue despite this error, as the action was created
+    // Continue despite this error, as the quest was created
   }
 
-  return data as Action;
+  return data as Quest;
 }
 
-export async function getLastReset() {
+export async function getUnclaimedLevelUps(
+  userId: string
+): Promise<(LevelUp & { level_info: Level })[]> {
   const { data, error } = await supabase
-    .from("reset_history")
-    .select("*")
-    .order("reset_date", { ascending: false })
-    .limit(1);
+    .from("level_ups")
+    .select(
+      `
+      *,
+      level_info:levels(*)
+    `
+    )
+    .eq("user_id", userId)
+    .eq("claimed", false)
+    .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("Error fetching last reset:", error);
-    throw new Error("Failed to fetch last reset");
+    console.error("Error fetching unclaimed level ups:", error);
+    throw new Error("Failed to fetch unclaimed level ups");
   }
 
-  if (data && data.length > 0) {
-    return data[0].reset_date;
-  }
-
-  // If no reset history, return first day of current month
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  return data as (LevelUp & { level_info: Level })[];
 }
 
-export async function getNextReset() {
-  const now = new Date();
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  return nextMonth.toISOString();
+export async function claimLevelUp(levelUpId: string): Promise<void> {
+  const { error } = await supabase
+    .from("level_ups")
+    .update({ claimed: true })
+    .eq("id", levelUpId);
+
+  if (error) {
+    console.error("Error claiming level up:", error);
+    throw new Error("Failed to claim level up");
+  }
+}
+
+// Utility functions for level progression display
+export function getLevelProgress(
+  currentXp: number,
+  level: Level,
+  nextLevel?: Level
+): {
+  currentLevelXp: number;
+  nextLevelXp: number;
+  progressXp: number;
+  progressPercentage: number;
+} {
+  const currentLevelXp = level.xp_required;
+  const nextLevelXp = nextLevel?.xp_required || currentLevelXp;
+  const progressXp = currentXp - currentLevelXp;
+  const totalXpForNextLevel = nextLevelXp - currentLevelXp;
+  const progressPercentage =
+    totalXpForNextLevel > 0 ? (progressXp / totalXpForNextLevel) * 100 : 100;
+
+  return {
+    currentLevelXp,
+    nextLevelXp,
+    progressXp,
+    progressPercentage: Math.min(100, Math.max(0, progressPercentage)),
+  };
 }

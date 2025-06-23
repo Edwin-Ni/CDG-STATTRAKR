@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "../lib/auth";
-import { createAction, getUserById } from "../lib/db";
+import { getCurrentUser } from "../lib/authContext";
+import { createQuest, getUserById } from "../lib/db";
 
-type ActionType =
+type QuestType =
   | "github_commit"
   | "github_pr_opened"
   | "github_pr_merged"
   | "github_pr_review";
 
 // Updated point values based on the provided table
-const actionPoints = {
+const questPoints = {
   github_commit: 1,
   github_pr_opened: 5,
   github_pr_merged: 8,
@@ -29,8 +29,12 @@ const tagPoints = {
   "": 0,
 };
 
-export default function ActionForm() {
-  const [type, setType] = useState<ActionType>("github_commit");
+interface QuestFormProps {
+  onQuestCreated?: () => void | Promise<void>;
+}
+
+export default function QuestForm({ onQuestCreated }: QuestFormProps) {
+  const [type, setType] = useState<QuestType>("github_commit");
   const [tag, setTag] = useState<TagType>("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,7 +65,7 @@ export default function ActionForm() {
       const authUser = await getCurrentUser();
 
       if (!authUser) {
-        setError("You must be logged in to submit an action");
+        setError("You must be logged in to submit a quest");
         setLoading(false);
         return;
       }
@@ -69,19 +73,20 @@ export default function ActionForm() {
       // Get the complete user profile from the database to get the username
       const userProfile = await getUserById(authUser.id);
 
-      // Calculate total points (base action points + tag points if any)
-      const basePoints = actionPoints[type];
+      // Calculate total points (base quest points + tag points if any)
+      const basePoints = questPoints[type];
       const additionalPoints = tag ? tagPoints[tag] : 0;
       const totalPoints = basePoints + additionalPoints;
 
       // Include tag in description if selected
       const fullDescription = tag ? `${description} #${tag}` : description;
 
-      await createAction({
+      await createQuest({
         user_id: authUser.id,
         username: userProfile.username,
+        source: "manual",
         type,
-        points: totalPoints,
+        xp: totalPoints,
         description: fullDescription,
       });
 
@@ -90,9 +95,15 @@ export default function ActionForm() {
       setDescription("");
       setType("github_commit");
       setTag("");
-      setRefreshPending(true); // Set flag to trigger refresh
+
+      // Call the callback to refresh parent data
+      if (onQuestCreated) {
+        await onQuestCreated();
+      } else {
+        setRefreshPending(true); // Fallback to page refresh if no callback
+      }
     } catch (err) {
-      setError("Failed to submit action. Please try again.");
+      setError("Failed to submit quest. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -125,7 +136,7 @@ export default function ActionForm() {
           </label>
           <select
             value={type}
-            onChange={(e) => setType(e.target.value as ActionType)}
+            onChange={(e) => setType(e.target.value as QuestType)}
             className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
             disabled={loading || refreshPending}
           >

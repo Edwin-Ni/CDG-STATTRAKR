@@ -5,11 +5,11 @@ export const dynamic = "force-dynamic"; // Don't cache this route
 
 export async function GET() {
   try {
-    // Get all users ordered by total XP
+    // Get all users ordered by monthly XP
     const { data: users, error: usersError } = await supabase
       .from("users")
       .select("*")
-      .order("total_xp", { ascending: false });
+      .order("monthly_xp", { ascending: false });
 
     if (usersError) {
       console.error("Error fetching users:", usersError);

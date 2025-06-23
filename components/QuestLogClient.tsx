@@ -2,18 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { Quest } from "../types/database";
 
-type Action = {
-  id: string;
-  username: string;
-  type: string;
-  points: number;
-  created_at: string;
-  description: string;
-};
-
-export default function ActionLogClient() {
-  const [data, setData] = useState<Action[]>([]);
+export default function QuestLogClient() {
+  const [data, setData] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,17 +13,17 @@ export default function ActionLogClient() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/actions");
+        const response = await fetch("/api/quests");
 
         if (!response.ok) {
-          throw new Error("Failed to fetch action data");
+          throw new Error("Failed to fetch quest data");
         }
 
         const json = await response.json();
         setData(json.data);
       } catch (err) {
-        console.error("Error fetching actions:", err);
-        setError("Failed to load actions");
+        console.error("Error fetching quests:", err);
+        setError("Failed to load quests");
       } finally {
         setLoading(false);
       }
@@ -62,7 +54,7 @@ export default function ActionLogClient() {
   }
 
   // Map action types to corresponding quest icons or images
-  const getActionIcon = (type: string) => {
+  const getQuestIcon = (type: string) => {
     switch (type) {
       case "github_commit":
         return (
@@ -103,7 +95,7 @@ export default function ActionLogClient() {
             <li key={action.id} className="p-4 hover:bg-[#262840]">
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#262840] text-2xl rounded-md border border-[#3d3f5a]">
-                  {getActionIcon(action.type)}
+                  {getQuestIcon(action.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-md font-medium text-white pixel-font">
@@ -117,7 +109,7 @@ export default function ActionLogClient() {
                   {new Date(action.created_at).toLocaleDateString()}
                 </div>
                 <div className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-[#262840] text-[#ffce63] border border-[#ffce63] pixel-font">
-                  +{action.points} XP
+                  +{action.xp} XP
                 </div>
               </div>
             </li>
