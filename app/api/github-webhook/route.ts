@@ -35,7 +35,8 @@ export async function POST(req: Request) {
 
     const payload = await req.json();
     const event = req.headers.get("x-github-event");
-
+    console.log("event", event);
+    console.log("payload", payload);
     if (!event) {
       return NextResponse.json(
         {
