@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "../../../lib/supabase";
+import { supabaseAdmin } from "../../../lib/supabase-server";
 
 // Updated XP values for different GitHub events based on the provided table
 const XP_VALUES = {
@@ -35,8 +35,7 @@ export async function POST(req: Request) {
 
     const payload = await req.json();
     const event = req.headers.get("x-github-event");
-    console.log("event", event);
-    console.log("payload", payload);
+
     if (!event) {
       return NextResponse.json(
         {
