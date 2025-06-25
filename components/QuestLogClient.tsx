@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { Quest } from "../types/database";
 
 export default function QuestLogClient() {
-  const [data, setData] = useState<Quest[]>([]);
+  const [data, setData] = useState<(Quest & { users: { username: string } })[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,7 +55,7 @@ export default function QuestLogClient() {
     );
   }
 
-  // Map action types to corresponding quest icons or images
+  // Map quest types to corresponding quest icons or images
   const getQuestIcon = (type: string) => {
     switch (type) {
       case "github_commit":
@@ -90,33 +92,33 @@ export default function QuestLogClient() {
   return (
     <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md overflow-hidden shadow-lg">
       <ul className="divide-y divide-[#3d3f5a]">
-        {data.map((action) => (
-          <li key={action.id} className="p-3 sm:p-4 hover:bg-[#262840]">
+        {data.map((quest) => (
+          <li key={quest.id} className="p-3 sm:p-4 hover:bg-[#262840]">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 sm:space-x-4">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                 <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-[#262840] text-lg sm:text-2xl rounded-md border border-[#3d3f5a]">
-                  {getQuestIcon(action.type)}
+                  {getQuestIcon(quest.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm sm:text-md font-medium text-white pixel-font truncate">
-                    {action.username}
+                    {quest.users.username}
                   </p>
                   <p className="text-sm sm:text-md text-[#7eb8da] pixel-font truncate">
-                    {action.description}
+                    {quest.description}
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-between sm:flex-shrink-0 sm:space-x-4">
                 <div className="flex flex-col text-xs sm:text-md text-[#7eb8da] pixel-font min-w-0">
                   <span className="truncate">
-                    {new Date(action.created_at).toLocaleDateString()}
+                    {new Date(quest.created_at).toLocaleDateString()}
                   </span>
                   <span className="truncate">
-                    {new Date(action.created_at).toLocaleTimeString()}
+                    {new Date(quest.created_at).toLocaleTimeString()}
                   </span>
                 </div>
                 <div className="ml-2 inline-flex items-center whitespace-nowrap px-2 py-1 sm:px-3 sm:py-1 rounded-md text-xs sm:text-sm font-medium bg-[#262840] text-[#ffce63] border border-[#ffce63] pixel-font">
-                  +{action.xp} XP
+                  +{quest.xp} XP
                 </div>
               </div>
             </div>
