@@ -3,7 +3,7 @@ import { supabaseAdmin } from "../../../lib/supabase-server";
 
 // Updated XP values for different GitHub events based on the provided table
 const XP_VALUES = {
-  push: 100, // Commits (push event) - now 1 XP
+  push: 100, // Commits (push event)
   pull_request_opened: 5, // Opening a PR
   pull_request_merged: 8, // Merging a PR
   pull_request_review: 3, // PR review with approval
