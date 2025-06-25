@@ -1,5 +1,6 @@
 import GitHubConnector from "../../components/GitHubConnector";
 import LogOutButton from "../../components/LogOutButton";
+import ProfileSettings from "../../components/ProfileSettings";
 import ProtectedRoute from "../../components/ProtectedRoute";
 
 export default function ProfilePage() {
@@ -13,6 +14,8 @@ export default function ProfilePage() {
             </h1>
             <LogOutButton />
           </div>
+
+          <ProfileSettings />
 
           <GitHubConnector />
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../lib/authContext";
+import { getUserById } from "../lib/db";
 import { supabase } from "../lib/supabase";
 
 export default function GitHubConnector() {
@@ -9,7 +10,32 @@ export default function GitHubConnector() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const { user } = useAuth();
+
+  // Fetch existing GitHub username on component load
+  useEffect(() => {
+    const fetchCurrentGitHubUsername = async () => {
+      if (!user?.id) {
+        setInitialLoading(false);
+        return;
+      }
+
+      try {
+        const userData = await getUserById(user.id);
+        if (userData.github_username) {
+          setGithubUsername(userData.github_username);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        // Don't show error for this, just continue with empty field
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchCurrentGitHubUsername();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +69,19 @@ export default function GitHubConnector() {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg">
+        <h3 className="text-xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font">
+          Connect GitHub Account
+        </h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-[#7eb8da] pixel-font">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg">
