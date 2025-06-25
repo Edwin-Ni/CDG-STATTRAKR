@@ -131,55 +131,6 @@ export async function getUnclaimedLevelUps(
   return data as (LevelUp & { level_info: Level })[];
 }
 
-export interface LevelUpRewards {
-  coins: number;
-  special_reward: any;
-}
-
-export async function claimLevelUp(levelUpId: string): Promise<LevelUpRewards> {
-  // First, get the level-up details including the level info
-  const { data: levelUpData, error: fetchError } = await supabase
-    .from("level_ups")
-    .select(
-      `
-      *,
-      level_info:levels(*)
-    `
-    )
-    .eq("id", levelUpId)
-    .eq("claimed", false)
-    .single();
-
-  if (fetchError) {
-    console.error("Error fetching level up:", fetchError);
-    throw new Error("Failed to fetch level up details");
-  }
-
-  if (!levelUpData) {
-    throw new Error("Level up not found or already claimed");
-  }
-
-  const levelInfo = levelUpData.level_info;
-
-  // Use a transaction to update both level_ups and users tables
-  const { data: rewardsData, error: transactionError } = await supabase.rpc(
-    "claim_level_up_with_rewards",
-    {
-      p_level_up_id: levelUpId,
-      p_user_id: levelUpData.user_id,
-      p_coin_reward: levelInfo.coin_reward,
-      p_special_reward: levelInfo.special_reward,
-    }
-  );
-
-  if (transactionError) {
-    console.error("Error claiming level up with rewards:", transactionError);
-    throw new Error("Failed to claim level up rewards");
-  }
-
-  return rewardsData as LevelUpRewards;
-}
-
 // Utility functions for level progression display
 export function getLevelProgress(
   currentXp: number,

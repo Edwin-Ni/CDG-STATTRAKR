@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/authContext";
 import {
-  claimLevelUp,
   getLevelByNumber,
   getLevelProgress,
   getUnclaimedLevelUps,
   getUserById,
   getXpToNextLevel,
 } from "../lib/db";
+import { claimLevelUpWithRewards } from "../lib/levelUpService";
 import type { Level, LevelUp } from "../types/database";
 import CountdownTimer from "./CountdownTimer";
 import LeaderboardClient from "./LeaderboardClient";
@@ -96,22 +96,24 @@ export default function ClientHomeWrapper() {
   }, [user]);
 
   const handleClaimLevelUp = async (levelUpId: string) => {
-    try {
-      const rewards = await claimLevelUp(levelUpId);
-      setLevelUps((prev) => prev.filter((lu) => lu.id !== levelUpId));
+    const rewards = await claimLevelUpWithRewards(levelUpId, {
+      onSuccess: (rewardsData) => {
+        setLevelUps((prev) => prev.filter((lu) => lu.id !== levelUpId));
 
-      // Handle special rewards if they exist
-      if (rewards.special_reward && rewards.special_reward !== null) {
-        console.log("Special rewards received:", rewards.special_reward);
-        // TODO: Show special reward notification or handle special reward logic
-        // For example, you might want to show a special modal or toast notification
-      }
+        // Handle special rewards if they exist
+        if (rewardsData.special_reward && rewardsData.special_reward !== null) {
+          console.log("Special rewards received:", rewardsData.special_reward);
+          // TODO: Show special reward notification or handle special reward logic
+          // For example, you might want to show a special modal or toast notification
+        }
 
-      // Refresh user data to get updated stats (including coin balance)
-      await fetchUserData();
-    } catch (error) {
-      console.error("Error claiming level up:", error);
-    }
+        // Refresh user data to get updated stats (including coin balance)
+        fetchUserData();
+      },
+      onError: (error) => {
+        console.error("Error claiming level up:", error);
+      },
+    });
   };
 
   return (
