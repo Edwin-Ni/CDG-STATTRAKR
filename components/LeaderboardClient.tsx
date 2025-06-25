@@ -65,7 +65,7 @@ export default function LeaderboardClient() {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 sm:mb-4 gap-2">
         <div className="flex gap-1 sm:gap-2 w-full sm:w-auto">
           <button className="flex-1 sm:flex-none bg-[#1e1f2e] text-[#7eb8da] border-2 border-[#7eb8da] px-2 sm:px-3 py-1 rounded-md hover:bg-[#262840] pixel-font text-xs sm:text-md">
-            This Month
+            Monthly
           </button>
           <button className="flex-1 sm:flex-none bg-[#ffce63] text-[#1e1f2e] border-2 border-[#ffce63] px-2 sm:px-3 py-1 rounded-md hover:bg-[#e5b958] pixel-font text-xs sm:text-md">
             All Time
@@ -92,20 +92,17 @@ export default function LeaderboardClient() {
                     className="w-6 h-6"
                   />
                 )}
-                <span className="text-white pixel-font text-sm font-medium">
+                <span className="text-white pixel-font text-sm font-medium truncate">
                   {entry.username}
                 </span>
               </div>
-              <span className="text-[#7eb8da] pixel-font text-sm">
-                Lvl {entry.level}
-              </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-[#ffce63] pixel-font">
-                {entry.total_xp} XP
+              <span className="text-[#e74c3c] pixel-font text-sm">
+                Lvl {entry.level}
               </span>
-              <span className="text-[#e74c3c] pixel-font">
-                {entry.quest_count} Quests
+              <span className="text-[#ffce63] pixel-font text-sm">
+                {entry.total_xp} XP
               </span>
             </div>
           </div>
@@ -157,13 +154,13 @@ export default function LeaderboardClient() {
                       {entry.username}
                     </div>
                   </td>
-                  <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#7eb8da] pixel-font">
+                  <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#e74c3c] pixel-font">
                     {entry.level}
                   </td>
                   <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#ffce63] pixel-font">
                     {entry.total_xp}
                   </td>
-                  <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#e74c3c] pixel-font">
+                  <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#7eb8da] pixel-font">
                     {entry.quest_count}
                   </td>
                 </tr>
