@@ -12,7 +12,7 @@ type LeaderboardEntry = {
 
 export default function LeaderboardClient() {
   const [data, setData] = useState<LeaderboardEntry[]>([]);
-
+  const [monthlyToggle, setMonthlyToggle] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,9 @@ export default function LeaderboardClient() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/leaderboard");
+        const response = await fetch(
+          monthlyToggle ? "/api/monthly-leaderboard" : "/api/leaderboard"
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch leaderboard data");
@@ -37,7 +39,7 @@ export default function LeaderboardClient() {
     };
 
     fetchData();
-  }, []);
+  }, [monthlyToggle]);
 
   if (loading) {
     return (
@@ -64,10 +66,24 @@ export default function LeaderboardClient() {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 sm:mb-4 gap-2">
         <div className="flex gap-1 sm:gap-2 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-[#1e1f2e] text-[#7eb8da] border-2 border-[#7eb8da] px-2 sm:px-3 py-1 rounded-md hover:bg-[#262840] pixel-font text-xs sm:text-md">
+          <button
+            onClick={() => setMonthlyToggle(true)}
+            className={`flex-1 sm:flex-none  px-2 sm:px-3 py-1 rounded-md  pixel-font text-xs sm:text-md ${
+              monthlyToggle
+                ? "bg-[#e5b958] hover:bg-[#e5b958] text-[#1e1f2e]"
+                : "bg-[#1e1f2e] text-[#7eb8da] border-2 border-[#7eb8da] hover:bg-[#262840]"
+            }`}
+          >
             Monthly
           </button>
-          <button className="flex-1 sm:flex-none bg-[#ffce63] text-[#1e1f2e] border-2 border-[#ffce63] px-2 sm:px-3 py-1 rounded-md hover:bg-[#e5b958] pixel-font text-xs sm:text-md">
+          <button
+            onClick={() => setMonthlyToggle(false)}
+            className={`flex-1 sm:flex-none border-2 px-2 sm:px-3 py-1 rounded-md pixel-font text-xs sm:text-md ${
+              monthlyToggle
+                ? "bg-[#1e1f2e] text-[#7eb8da] border-[#7eb8da] hover:bg-[#262840]"
+                : "bg-[#ffce63] text-[#1e1f2e] border-[#ffce63] hover:bg-[#e5b958]"
+            }`}
+          >
             All Time
           </button>
         </div>

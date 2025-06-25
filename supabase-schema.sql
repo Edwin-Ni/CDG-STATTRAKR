@@ -255,15 +255,13 @@ begin
     level = v_new_level
   where id = p_user_id;
 
-  -- If user leveled up, create level_up record and award rewards
+  -- If user leveled up, create level_up record for each level gained
   if v_new_level > v_old_level then
-    -- Get rewards for the new level
-    select * into v_level_reward
-    from get_level_rewards(v_new_level);
-    
-    -- Create level up record
-    insert into public.level_ups (user_id, level, xp, claimed)
-    values (p_user_id, v_new_level, v_new_total_xp, false);
+    -- Create level up records for each level between old and new
+    for level_achieved in (v_old_level + 1)..v_new_level loop
+      insert into public.level_ups (user_id, level, xp, claimed)
+      values (p_user_id, level_achieved, v_new_total_xp, false);
+    end loop;
   end if;
 end;
 $$;

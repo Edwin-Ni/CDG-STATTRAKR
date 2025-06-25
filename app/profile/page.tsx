@@ -7,7 +7,7 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <div className="bg-[#1e1f2e] min-h-screen py-8 px-6">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto flex flex-col gap-4">
           <div className="flex justify-between mb-6">
             <h1 className="text-3xl font-bold text-[#7eb8da] uppercase tracking-wider pixel-font">
               Your Profile
@@ -19,7 +19,7 @@ export default function ProfilePage() {
 
           <GitHubConnector />
 
-          <div className="mt-8 bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg">
+          <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg">
             <h3 className="text-xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font">
               GitHub Webhook Setup for Admins
             </h3>

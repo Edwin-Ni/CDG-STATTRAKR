@@ -58,7 +58,16 @@ export default function ProfileSettings() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <h3 className="text-xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font">
+          Profile Settings
+        </h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-[#7eb8da] pixel-font">Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   return (

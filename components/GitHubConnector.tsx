@@ -61,7 +61,6 @@ export default function GitHubConnector() {
       }
 
       setSuccess(true);
-      setGithubUsername("");
     } catch (err: any) {
       setError(err.message || "Failed to connect GitHub account");
       console.error(err);
