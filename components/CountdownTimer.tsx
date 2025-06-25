@@ -49,11 +49,11 @@ export default function CountdownTimer() {
   }, []);
 
   return (
-    <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 mb-6 shadow-lg relative">
+    <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg relative">
       <h3 className="text-xl font-bold text-[#7eb8da] mb-3 uppercase tracking-wider pixel-font">
-        Reset Timer
+        Time Left
       </h3>
-      <div className="grid grid-cols-4 gap-2 text-center">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 text-center">
         <div className="bg-[#262840] border-2 border-[#7eb8da] p-2 rounded-md">
           <div className="text-2xl font-bold text-[#ffce63] pixel-font">
             {timeLeft.days}
@@ -67,7 +67,7 @@ export default function CountdownTimer() {
             {timeLeft.hours}
           </div>
           <div className="text-sm text-[#7eb8da] uppercase tracking-wider pixel-font">
-            Hours
+            Hrs
           </div>
         </div>
         <div className="bg-[#262840] border-2 border-[#7eb8da] p-2 rounded-md">
@@ -78,7 +78,7 @@ export default function CountdownTimer() {
             Mins
           </div>
         </div>
-        <div className="bg-[#262840] border-2 border-[#7eb8da] p-2 rounded-md">
+        <div className="bg-[#262840] border-2 border-[#7eb8da] p-2 rounded-md hidden sm:block">
           <div className="text-2xl font-bold text-[#ffce63] pixel-font">
             {timeLeft.seconds}
           </div>

@@ -3,72 +3,22 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/authContext";
 import {
-  claimLevelUp,
   getLevelByNumber,
   getLevelProgress,
   getUnclaimedLevelUps,
   getUserById,
   getXpToNextLevel,
 } from "../lib/db";
+import { claimLevelUpWithRewards } from "../lib/levelUpService";
 import type { Level, LevelUp } from "../types/database";
 import CountdownTimer from "./CountdownTimer";
 import LeaderboardClient from "./LeaderboardClient";
+import LevelProgressCard from "./LevelProgressCard";
+import LevelUpNotification from "./LevelUpNotification";
 import QuestForm from "./QuestForm";
 import QuestLogClient from "./QuestLogClient";
-
-// Skeleton component for loading state
-function StatsSkeleton() {
-  return (
-    <div className="grid grid-cols-4 gap-4 mb-2">
-      {[...Array(4)].map((_, i) => (
-        <div
-          key={i}
-          className="bg-[#1e1f2e] border-2 border-[#3d3f5a] rounded-md p-3 text-center animate-pulse"
-        >
-          <div className="h-4 bg-[#3d3f5a] rounded mb-2"></div>
-          <div className="h-8 bg-[#3d3f5a] rounded"></div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Enhanced level up notification component
-function LevelUpNotification({
-  levelUp,
-  onClaim,
-}: {
-  levelUp: LevelUp & { level_info: Level };
-  onClaim: (id: string) => void;
-}) {
-  const { level_info } = levelUp;
-
-  return (
-    <div className="bg-gradient-to-r from-[#ffce63] to-[#e5b958] text-[#1e1f2e] p-4 rounded-md mb-4 border-2 border-[#ffce63] shadow-lg">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div>
-            <h3 className="text-xl font-bold pixel-font">🎉 LEVEL UP!</h3>
-            <p className="pixel-font font-semibold">
-              Level {levelUp.level}: {level_info.title}
-            </p>
-            {level_info.coin_reward > 0 && (
-              <p className="pixel-font text-sm font-bold">
-                Reward: {level_info.coin_reward} coins!
-              </p>
-            )}
-          </div>
-        </div>
-        <button
-          onClick={() => onClaim(levelUp.id)}
-          className="bg-[#1e1f2e] text-[#ffce63] border-2 border-[#1e1f2e] px-4 py-2 rounded-md hover:bg-[#262840] pixel-font font-bold"
-        >
-          CLAIM
-        </button>
-      </div>
-    </div>
-  );
-}
+import StatsGrid from "./StatsGrid";
+import StatsSkeleton from "./StatsSkeleton";
 
 export default function ClientHomeWrapper() {
   const { user } = useAuth();
@@ -146,18 +96,28 @@ export default function ClientHomeWrapper() {
   }, [user]);
 
   const handleClaimLevelUp = async (levelUpId: string) => {
-    try {
-      await claimLevelUp(levelUpId);
-      setLevelUps((prev) => prev.filter((lu) => lu.id !== levelUpId));
-      // Refresh user data to get updated stats
-      await fetchUserData();
-    } catch (error) {
-      console.error("Error claiming level up:", error);
-    }
+    const rewards = await claimLevelUpWithRewards(levelUpId, {
+      onSuccess: (rewardsData) => {
+        setLevelUps((prev) => prev.filter((lu) => lu.id !== levelUpId));
+
+        // Handle special rewards if they exist
+        if (rewardsData.special_reward && rewardsData.special_reward !== null) {
+          console.log("Special rewards received:", rewardsData.special_reward);
+          // TODO: Show special reward notification or handle special reward logic
+          // For example, you might want to show a special modal or toast notification
+        }
+
+        // Refresh user data to get updated stats (including coin balance)
+        fetchUserData();
+      },
+      onError: (error) => {
+        console.error("Error claiming level up:", error);
+      },
+    });
   };
 
   return (
-    <div className="bg-[#1e1f2e] min-h-screen flex flex-col gap-8 p-6">
+    <div className="bg-[#1e1f2e] min-h-screen flex flex-col gap-2 sm:gap-4 p-2 sm:p-6">
       {/* Level Up Notifications */}
       {levelUps.map((levelUp) => (
         <LevelUpNotification
@@ -171,54 +131,18 @@ export default function ClientHomeWrapper() {
       {userStats.isLoading ? (
         <StatsSkeleton />
       ) : (
-        <div>
-          <div className="bg-[#1e1f2e] border-2 border-[#ffce63] rounded-md p-3 text-center">
-            <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
-              Level {userStats.level}
-            </div>
-            <div className="text-3xl font-bold text-[#ffce63] pixel-font">
-              {userStats.currentLevelInfo?.title}
-            </div>
-            {userStats.xpToNext > 0 && (
-              <>
-                <div className="text-xs text-[#ffce63] pixel-font mt-1">
-                  {userStats.xpToNext} XP left
-                </div>
-                <div className="w-full bg-[#262840] rounded-full h-2 mt-2">
-                  <div
-                    className="bg-[#ffce63] h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${userStats.progressPercentage}%` }}
-                  ></div>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="border-2 border-[#7eb8da] rounded-md p-3 text-center">
-              <div className="text-md text-[#7eb8da] uppercase tracking-wider pixel-font">
-                ⚡ <br /> XP
-              </div>
-              <div className="text-3xl font-bold text-[#7eb8da] pixel-font">
-                {userStats.totalXp.toLocaleString()}
-              </div>
-            </div>
-            <div className="border-2 border-[#e74c3c] rounded-md p-3 text-center">
-              <div className="text-md text-[#e74c3c] uppercase tracking-wider pixel-font">
-                📋 <br /> Quests
-              </div>
-              <div className="text-3xl font-bold text-[#e74c3c] pixel-font">
-                {userStats.questCount}
-              </div>
-            </div>
-            <div className="border-2 border-[#ffce63] rounded-md p-3 text-center">
-              <div className="text-md text-[#ffce63] uppercase tracking-wider pixel-font">
-                💰 <br /> Coins
-              </div>
-              <div className="text-3xl font-bold text-[#ffce63] pixel-font">
-                {userStats.coins.toLocaleString()}
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col gap-2 sm:gap-4">
+          <LevelProgressCard
+            level={userStats.level}
+            currentLevelInfo={userStats.currentLevelInfo}
+            xpToNext={userStats.xpToNext}
+            progressPercentage={userStats.progressPercentage}
+          />
+          <StatsGrid
+            totalXp={userStats.totalXp}
+            questCount={userStats.questCount}
+            coins={userStats.coins}
+          />
         </div>
       )}
 
@@ -227,7 +151,7 @@ export default function ClientHomeWrapper() {
 
       {/* Leaderboard */}
       <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg">
-        <h2 className="text-2xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font">
+        <h2 className="text-2xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font truncate">
           🏆 Leaderboard
         </h2>
         <LeaderboardClient />
@@ -235,7 +159,7 @@ export default function ClientHomeWrapper() {
 
       {/* Quest Log */}
       <div className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-4 shadow-lg">
-        <h2 className="text-2xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font">
+        <h2 className="text-2xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font truncate">
           📜 Recent Quests
         </h2>
         <QuestLogClient />

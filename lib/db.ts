@@ -131,18 +131,6 @@ export async function getUnclaimedLevelUps(
   return data as (LevelUp & { level_info: Level })[];
 }
 
-export async function claimLevelUp(levelUpId: string): Promise<void> {
-  const { error } = await supabase
-    .from("level_ups")
-    .update({ claimed: true })
-    .eq("id", levelUpId);
-
-  if (error) {
-    console.error("Error claiming level up:", error);
-    throw new Error("Failed to claim level up");
-  }
-}
-
 // Utility functions for level progression display
 export function getLevelProgress(
   currentXp: number,

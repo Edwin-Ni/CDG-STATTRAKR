@@ -8,9 +8,9 @@ export async function GET() {
     // Get most recent quests
     const { data, error } = await supabase
       .from("quests")
-      .select("*")
+      .select("*, users(username)")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(10);
 
     if (error) {
       console.error("Error fetching quests:", error);
