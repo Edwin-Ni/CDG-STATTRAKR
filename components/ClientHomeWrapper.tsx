@@ -47,7 +47,6 @@ function LevelUpNotification({
     <div className="bg-gradient-to-r from-[#ffce63] to-[#e5b958] text-[#1e1f2e] p-4 rounded-md mb-4 border-2 border-[#ffce63] shadow-lg">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="text-4xl">{level_info.title}</div>
           <div>
             <h3 className="text-xl font-bold pixel-font">🎉 LEVEL UP!</h3>
             <p className="pixel-font font-semibold">
