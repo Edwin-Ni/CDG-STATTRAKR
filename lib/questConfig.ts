@@ -41,7 +41,7 @@ export type TagType = "bug" | "feature" | "hotfix" | "refactor" | "";
 
 // XP values for each quest type
 export const QUEST_XP: Record<QuestType, number> = {
-  github_commit: 2000,
+  github_commit: 1,
   github_pr_opened: 5,
   github_pr_merged: 8,
   github_pr_review: 3,
