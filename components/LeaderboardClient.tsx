@@ -99,18 +99,18 @@ export default function LeaderboardClient() {
             className="bg-[#1e1f2e] border-2 border-[#7eb8da] rounded-md p-3"
           >
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-[#7eb8da] font-bold pixel-font text-sm">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="text-[#7eb8da] font-bold pixel-font text-sm flex-shrink-0">
                   #{index + 1}
                 </span>
                 {index === 0 && (
                   <img
                     src="/images/crown.png"
                     alt="Crown"
-                    className="w-6 h-6"
+                    className="w-6 h-6 flex-shrink-0"
                   />
                 )}
-                <span className="text-white pixel-font text-sm font-medium truncate">
+                <span className="text-white pixel-font text-sm font-medium truncate min-w-0">
                   {entry.username}
                 </span>
               </div>

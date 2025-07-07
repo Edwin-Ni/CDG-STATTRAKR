@@ -37,6 +37,7 @@ Fully configurable through the `levels` database table:
 
 ### Key Functions
 
+- Monthly Cron Job scheduler for resetting monthly stats
 - `increment_user_stats_with_levelup`: Handles XP gains and multi-level progression
 - `get_level_for_xp`: Calculates current level from total XP
 - `reset_monthly_stats`: Monthly leaderboard reset via `/api/reset`
@@ -49,7 +50,8 @@ Add this webhook URL to your repositories:
 [Your Domain]/api/github-webhook
 ```
 
-Supported events: push, pull_request, issues, pull_request_review
+Supported automated events: push, pull_request, pull_request_review
+Manual events: Cold calls, cold messages,
 
 ## Development Roadmap
 

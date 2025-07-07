@@ -42,11 +42,11 @@ export type TagType = "bug" | "feature" | "hotfix" | "refactor" | "";
 // XP values for each quest type
 export const QUEST_XP: Record<QuestType, number> = {
   github_commit: 1,
-  github_pr_opened: 5,
-  github_pr_review: 10,
-  business_cold_call: 5,
-  business_cold_message: 2,
-  documentation: 10,
+  github_pr_opened: 8,
+  github_pr_review: 12,
+  business_cold_call: 8,
+  business_cold_message: 4,
+  documentation: 12,
 } as const;
 
 // Bonus XP for tags

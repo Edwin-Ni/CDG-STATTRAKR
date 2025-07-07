@@ -73,8 +73,16 @@ export async function POST(req: Request) {
 
       case "pull_request_review":
         const reviewState = payload.review?.state || "";
-        xp = WEBHOOK_XP_VALUES.pull_request_review;
-        description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name}`;
+
+        // Only award XP for actual reviews (approved, changes_requested, or dismissed)
+        // Skip simple comments which have state "commented"
+        if (reviewState === "commented") {
+          xp = 1;
+        } else {
+          xp = WEBHOOK_XP_VALUES.pull_request_review;
+        }
+
+        description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name} (${reviewState})`;
         questType = "github_pr_review";
         break;
 
