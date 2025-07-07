@@ -13,6 +13,7 @@
 // To add new tags:
 // Add to TAG_XP and TAG_DISPLAY - form gets new options automatically
 
+// Need to refactor the icons, it currently is in QuestLogClient.tsx as well
 // Core quest types available in the system
 export type QuestType =
   | "github_commit"
