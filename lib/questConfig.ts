@@ -17,23 +17,22 @@
 export type QuestType =
   | "github_commit"
   | "github_pr_opened"
-  | "github_pr_merged"
   | "github_pr_review"
-  | "github_issue"
-  | "github_issue_comment";
+  | "business_cold_call"
+  | "business_cold_message"
+  | "documentation";
 
 // Manual quest types (subset available for manual entry)
 export type ManualQuestType = Extract<
   QuestType,
-  "github_commit" | "github_pr_opened" | "github_pr_merged" | "github_pr_review"
+  "business_cold_call" | "business_cold_message" | "documentation"
 >;
 
 // Array of manual quest types for iteration
 export const MANUAL_QUEST_TYPES: readonly ManualQuestType[] = [
-  "github_commit",
-  "github_pr_opened",
-  "github_pr_merged",
-  "github_pr_review",
+  "business_cold_call",
+  "business_cold_message",
+  "documentation",
 ] as const;
 
 // Tag types for bonus XP
@@ -43,29 +42,29 @@ export type TagType = "bug" | "feature" | "hotfix" | "refactor" | "";
 export const QUEST_XP: Record<QuestType, number> = {
   github_commit: 1,
   github_pr_opened: 5,
-  github_pr_merged: 8,
-  github_pr_review: 3,
-  github_issue: 3,
-  github_issue_comment: 2,
+  github_pr_review: 10,
+  business_cold_call: 5,
+  business_cold_message: 2,
+  documentation: 10,
 } as const;
 
 // Bonus XP for tags
 export const TAG_XP: Record<Exclude<TagType, "">, number> = {
-  bug: 5,
-  feature: 6,
-  hotfix: 6,
-  refactor: 4,
+  bug: 2,
+  feature: 5,
+  hotfix: 8,
+  refactor: 8,
 } as const;
 
 // Quest type display information
 export const QUEST_DISPLAY: Record<QuestType, { name: string; icon: string }> =
   {
-    github_commit: { name: "Commit", icon: "📝" },
-    github_pr_opened: { name: "PR Opened", icon: "🔀" },
-    github_pr_merged: { name: "PR Merged", icon: "✅" },
+    github_commit: { name: "Commit", icon: "💦" },
+    github_pr_opened: { name: "PR Opened", icon: "😳" },
     github_pr_review: { name: "PR Review", icon: "👀" },
-    github_issue: { name: "Issue", icon: "🐛" },
-    github_issue_comment: { name: "Comment", icon: "💬" },
+    business_cold_call: { name: "Cold Call", icon: "🥶" },
+    business_cold_message: { name: "Cold Message", icon: "💬" },
+    documentation: { name: "Documentation", icon: "📄" },
   } as const;
 
 // Tag display information
@@ -86,10 +85,7 @@ export const TAG_DISPLAY: Record<
 export const WEBHOOK_XP_VALUES = {
   push: QUEST_XP.github_commit, // Commits (push event)
   pull_request_opened: QUEST_XP.github_pr_opened,
-  pull_request_merged: QUEST_XP.github_pr_merged,
   pull_request_review: QUEST_XP.github_pr_review,
-  issues: QUEST_XP.github_issue,
-  issue_comment: QUEST_XP.github_issue_comment,
 } as const;
 
 // Utility functions
@@ -103,10 +99,6 @@ export function getQuestXP(questType: QuestType, tag?: TagType): number {
 
 export function getQuestDisplayName(questType: QuestType): string {
   return QUEST_DISPLAY[questType].name;
-}
-
-export function getQuestIcon(questType: QuestType): string {
-  return QUEST_DISPLAY[questType].icon;
 }
 
 export function getTagDisplayName(tag: Exclude<TagType, "">): string {
@@ -123,16 +115,6 @@ export function extractTags(description: string): TagType[] {
 // Validate quest type
 export function isValidQuestType(type: string): type is QuestType {
   return Object.keys(QUEST_XP).includes(type);
-}
-
-// Validate manual quest type
-export function isValidManualQuestType(type: string): type is ManualQuestType {
-  return [
-    "github_commit",
-    "github_pr_opened",
-    "github_pr_merged",
-    "github_pr_review",
-  ].includes(type);
 }
 
 // Validate tag type
