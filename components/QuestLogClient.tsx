@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Quest } from "../types/database";
 
@@ -68,31 +67,17 @@ const QuestLogClient = forwardRef<QuestLogRef>((props, ref) => {
   const getQuestIcon = (type: string) => {
     switch (type) {
       case "github_commit":
-        return (
-          <Image
-            src="/images/commit.png"
-            alt="Commit"
-            width={32}
-            height={32}
-            className="w-6 h-6 sm:w-8 sm:h-8"
-          />
-        );
+        return "💦";
       case "github_pr_opened":
-        return (
-          <Image
-            src="/images/opening_pr.png"
-            alt="PR Opened"
-            width={32}
-            height={32}
-            className="w-6 h-6 sm:w-8 sm:h-8"
-          />
-        );
-      case "github_pr_merged":
-        return "🔀";
-      case "github_issue":
-        return "🐛";
+        return "😳";
       case "github_pr_review":
         return "👀";
+      case "business_cold_call":
+        return "🥶";
+      case "business_cold_message":
+        return "💬";
+      case "documentation":
+        return "📄";
       default:
         return "✨";
     }
