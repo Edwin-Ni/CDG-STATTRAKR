@@ -7,8 +7,6 @@ import {
   MANUAL_QUEST_TYPES,
   ManualQuestType,
   QUEST_XP,
-  TAG_DISPLAY,
-  TAG_XP,
   TagType,
   getQuestDisplayName,
   getQuestXP,
@@ -19,7 +17,7 @@ interface QuestFormProps {
 }
 
 export default function QuestForm({ onQuestCreated }: QuestFormProps) {
-  const [type, setType] = useState<ManualQuestType>("github_commit");
+  const [type, setType] = useState<ManualQuestType>("business_cold_call");
   const [tag, setTag] = useState<TagType>("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,7 +74,7 @@ export default function QuestForm({ onQuestCreated }: QuestFormProps) {
       setSuccessPoints(totalPoints);
       setSuccess(true);
       setDescription("");
-      setType("github_commit");
+      setType("business_cold_call");
       setTag("");
 
       // Call the callback to refresh parent data
@@ -131,6 +129,8 @@ export default function QuestForm({ onQuestCreated }: QuestFormProps) {
           </select>
         </div>
 
+        {/* Temporary disabled for now */}
+        {/* 
         <div>
           <label className="block text-[#7eb8da] mb-2 pixel-font">
             Tag (Optional)
@@ -150,7 +150,7 @@ export default function QuestForm({ onQuestCreated }: QuestFormProps) {
               )
             )}
           </select>
-        </div>
+        </div> */}
 
         <div>
           <label className="block text-[#7eb8da] mb-2 pixel-font">
