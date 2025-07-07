@@ -46,9 +46,6 @@ export async function POST(req: Request) {
         if (prAction === "opened") {
           xp = WEBHOOK_XP_VALUES.pull_request_opened;
           questType = "github_pr_opened";
-        } else if (prAction === "closed" && payload.pull_request?.merged) {
-          xp = WEBHOOK_XP_VALUES.pull_request_merged;
-          questType = "github_pr_merged";
         } else {
           return NextResponse.json(
             { message: "Unsupported PR action" },
@@ -58,6 +55,7 @@ export async function POST(req: Request) {
 
         description = `${prAction} PR #${payload.number} in ${payload.repository.name}`;
 
+        // Check for tags in PR title or body (ONLY for pull requests)
         const prTitle = payload.pull_request?.title || "";
         const prBody = payload.pull_request?.body || "";
         const fullText = `${prTitle} ${prBody}`;
@@ -73,25 +71,9 @@ export async function POST(req: Request) {
         }
         break;
 
-      case "issues":
-        description = `${payload.action} issue #${payload.issue.number} in ${payload.repository.name}`;
-        xp = WEBHOOK_XP_VALUES.issues;
-        questType = "github_issue";
-        break;
-
-      case "issue_comment":
-        description = `Commented on #${payload.issue.number} in ${payload.repository.name}`;
-        xp = WEBHOOK_XP_VALUES.issue_comment;
-        questType = "github_issue_comment";
-        break;
-
       case "pull_request_review":
         const reviewState = payload.review?.state || "";
-        if (reviewState === "approved") {
-          xp = WEBHOOK_XP_VALUES.pull_request_review;
-        } else {
-          xp = 2; // Non-approved review still gets minimal XP
-        }
+        xp = WEBHOOK_XP_VALUES.pull_request_review;
         description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name}`;
         questType = "github_pr_review";
         break;
