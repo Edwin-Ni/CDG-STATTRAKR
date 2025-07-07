@@ -121,7 +121,7 @@ export async function getUnclaimedLevelUps(
     )
     .eq("user_id", userId)
     .eq("claimed", false)
-    .order("created_at", { ascending: true });
+    .order("level", { ascending: false });
 
   if (error) {
     console.error("Error fetching unclaimed level ups:", error);

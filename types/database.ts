@@ -11,17 +11,14 @@ export type User = {
   created_at: string;
 };
 
+import type { QuestType } from "../lib/questConfig";
+
 export type Quest = {
   id: string;
   user_id: string;
   username: string;
   source: "github" | "manual";
-  type:
-    | "github_commit"
-    | "github_pull_request"
-    | "github_issue"
-    | "github_code_review"
-    | string;
+  type: QuestType | string; // Allow string for legacy compatibility
   xp: number;
   description: string;
   created_at: string;

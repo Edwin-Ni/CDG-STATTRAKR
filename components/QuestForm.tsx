@@ -3,38 +3,23 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "../lib/authContext";
 import { createQuest, getUserById } from "../lib/db";
-
-type QuestType =
-  | "github_commit"
-  | "github_pr_opened"
-  | "github_pr_merged"
-  | "github_pr_review";
-
-// Updated point values based on the provided table
-const questPoints = {
-  github_commit: 1,
-  github_pr_opened: 5,
-  github_pr_merged: 8,
-  github_pr_review: 3, // Using the higher value for PR review with approval
-};
-
-// Tags for additional points
-type TagType = "bug" | "feature" | "hotfix" | "refactor" | "";
-
-const tagPoints = {
-  bug: 5,
-  feature: 6,
-  hotfix: 6,
-  refactor: 4,
-  "": 0,
-};
+import {
+  MANUAL_QUEST_TYPES,
+  ManualQuestType,
+  QUEST_XP,
+  TAG_DISPLAY,
+  TAG_XP,
+  TagType,
+  getQuestDisplayName,
+  getQuestXP,
+} from "../lib/questConfig";
 
 interface QuestFormProps {
   onQuestCreated?: () => void | Promise<void>;
 }
 
 export default function QuestForm({ onQuestCreated }: QuestFormProps) {
-  const [type, setType] = useState<QuestType>("github_commit");
+  const [type, setType] = useState<ManualQuestType>("github_commit");
   const [tag, setTag] = useState<TagType>("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,10 +58,8 @@ export default function QuestForm({ onQuestCreated }: QuestFormProps) {
       // Get the complete user profile from the database to get the username
       const userProfile = await getUserById(authUser.id);
 
-      // Calculate total points (base quest points + tag points if any)
-      const basePoints = questPoints[type];
-      const additionalPoints = tag ? tagPoints[tag] : 0;
-      const totalPoints = basePoints + additionalPoints;
+      // Calculate total points using centralized config
+      const totalPoints = getQuestXP(type, tag);
 
       // Include tag in description if selected
       const fullDescription = tag ? `${description} #${tag}` : description;
@@ -136,14 +119,15 @@ export default function QuestForm({ onQuestCreated }: QuestFormProps) {
           </label>
           <select
             value={type}
-            onChange={(e) => setType(e.target.value as QuestType)}
+            onChange={(e) => setType(e.target.value as ManualQuestType)}
             className="w-full bg-[#262840] text-white border-2 border-[#7eb8da] rounded-md p-2 pixel-font"
             disabled={loading || refreshPending}
           >
-            <option value="github_commit">Commit (+1 XP)</option>
-            <option value="github_pr_opened">PR Opened (+5 XP)</option>
-            <option value="github_pr_merged">PR Merged (+8 XP)</option>
-            <option value="github_pr_review">PR Review (+3 XP)</option>
+            {MANUAL_QUEST_TYPES.map((questType) => (
+              <option key={questType} value={questType}>
+                {getQuestDisplayName(questType)} (+{QUEST_XP[questType]} XP)
+              </option>
+            ))}
           </select>
         </div>
 
@@ -158,10 +142,13 @@ export default function QuestForm({ onQuestCreated }: QuestFormProps) {
             disabled={loading || refreshPending}
           >
             <option value="">No Tag</option>
-            <option value="bug">Bug Fix (+5 XP)</option>
-            <option value="feature">Feature (+6 XP)</option>
-            <option value="hotfix">Hotfix (+6 XP)</option>
-            <option value="refactor">Refactor (+4 XP)</option>
+            {(Object.keys(TAG_DISPLAY) as Array<keyof typeof TAG_DISPLAY>).map(
+              (tagType) => (
+                <option key={tagType} value={tagType}>
+                  {TAG_DISPLAY[tagType].name} (+{TAG_XP[tagType]} XP)
+                </option>
+              )
+            )}
           </select>
         </div>
 

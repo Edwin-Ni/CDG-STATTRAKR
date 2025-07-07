@@ -1,38 +1,47 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Quest } from "../types/database";
 
-export default function QuestLogClient() {
+export interface QuestLogRef {
+  refresh: () => void;
+}
+
+const QuestLogClient = forwardRef<QuestLogRef>((props, ref) => {
   const [data, setData] = useState<(Quest & { users: { username: string } })[]>(
     []
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/quests");
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/quests");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch quest data");
-        }
-
-        const json = await response.json();
-        setData(json.data);
-      } catch (err) {
-        console.error("Error fetching quests:", err);
-        setError("Failed to load quests");
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch quest data");
       }
-    };
 
+      const json = await response.json();
+      setData(json.data);
+    } catch (err) {
+      console.error("Error fetching quests:", err);
+      setError("Failed to load quests");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  // Expose refresh function to parent components
+  useImperativeHandle(ref, () => ({
+    refresh: fetchData,
+  }));
 
   if (loading) {
     return (
@@ -127,4 +136,6 @@ export default function QuestLogClient() {
       </ul>
     </div>
   );
-}
+});
+
+export default QuestLogClient;

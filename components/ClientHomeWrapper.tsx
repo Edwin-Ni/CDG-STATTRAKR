@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/authContext";
 import {
   getLevelByNumber,
@@ -16,12 +16,13 @@ import LeaderboardClient from "./LeaderboardClient";
 import LevelProgressCard from "./LevelProgressCard";
 import LevelUpNotification from "./LevelUpNotification";
 import QuestForm from "./QuestForm";
-import QuestLogClient from "./QuestLogClient";
+import QuestLogClient, { QuestLogRef } from "./QuestLogClient";
 import StatsGrid from "./StatsGrid";
 import StatsSkeleton from "./StatsSkeleton";
 
 export default function ClientHomeWrapper() {
   const { user } = useAuth();
+  const questLogRef = useRef<QuestLogRef>(null);
   const [userStats, setUserStats] = useState<{
     totalXp: number;
     questCount: number;
@@ -89,6 +90,12 @@ export default function ClientHomeWrapper() {
     }
   };
 
+  const handleQuestCreated = async () => {
+    await fetchUserData();
+    // Also refresh the quest log
+    questLogRef.current?.refresh();
+  };
+
   useEffect(() => {
     if (user?.id) {
       fetchUserData();
@@ -118,14 +125,15 @@ export default function ClientHomeWrapper() {
 
   return (
     <div className="bg-[#1e1f2e] min-h-screen flex flex-col gap-2 sm:gap-4 p-2 sm:p-6">
-      {/* Level Up Notifications */}
-      {levelUps.map((levelUp) => (
+      {/* Level Up Notifications - Show only the highest level */}
+      {levelUps.length > 0 && (
         <LevelUpNotification
-          key={levelUp.id}
-          levelUp={levelUp}
+          key={levelUps[0].id}
+          levelUp={levelUps[0]}
           onClaim={handleClaimLevelUp}
+          totalCount={levelUps.length}
         />
-      ))}
+      )}
 
       {/* Stats Bar */}
       {userStats.isLoading ? (
@@ -162,11 +170,11 @@ export default function ClientHomeWrapper() {
         <h2 className="text-2xl font-bold text-[#7eb8da] mb-4 uppercase tracking-wider pixel-font truncate">
           📜 Recent Quests
         </h2>
-        <QuestLogClient />
+        <QuestLogClient ref={questLogRef} />
       </div>
 
       {/* Quest Form */}
-      <QuestForm onQuestCreated={fetchUserData} />
+      <QuestForm onQuestCreated={handleQuestCreated} />
     </div>
   );
 }

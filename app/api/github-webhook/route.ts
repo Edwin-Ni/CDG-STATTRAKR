@@ -1,30 +1,11 @@
 import { NextResponse } from "next/server";
+import {
+  TAG_XP,
+  WEBHOOK_XP_VALUES,
+  extractTags,
+  isValidQuestType,
+} from "../../../lib/questConfig";
 import { supabaseAdmin } from "../../../lib/supabase-server";
-
-// Updated XP values for different GitHub events based on the provided table
-const XP_VALUES = {
-  push: 100, // Commits (push event)
-  pull_request_opened: 5, // Opening a PR
-  pull_request_merged: 8, // Merging a PR
-  pull_request_review: 3, // PR review with approval
-  issues: 3, // Issues
-  issue_comment: 2, // Comments
-};
-
-// Tags for additional XP
-const TAG_XP = {
-  bug: 5,
-  feature: 6,
-  hotfix: 6,
-  refactor: 4,
-};
-
-// Extract tags from description
-function extractTags(description: string): string[] {
-  const tagPattern = /#(bug|feature|hotfix|refactor)\b/gi;
-  const matches = description.match(tagPattern) || [];
-  return matches.map((tag) => tag.substring(1).toLowerCase());
-}
 
 export async function POST(req: Request) {
   try {
@@ -54,7 +35,7 @@ export async function POST(req: Request) {
     switch (event) {
       case "push":
         const commitCount = payload.commits?.length || 1;
-        xp = XP_VALUES.push * commitCount; // XP per commit
+        xp = WEBHOOK_XP_VALUES.push * commitCount; // XP per commit
         description = `Pushed ${commitCount} commit(s) to ${payload.repository.name}`;
         questType = "github_commit";
         break;
@@ -63,10 +44,10 @@ export async function POST(req: Request) {
         const prAction = payload.action;
 
         if (prAction === "opened") {
-          xp = XP_VALUES.pull_request_opened;
+          xp = WEBHOOK_XP_VALUES.pull_request_opened;
           questType = "github_pr_opened";
         } else if (prAction === "closed" && payload.pull_request?.merged) {
-          xp = XP_VALUES.pull_request_merged;
+          xp = WEBHOOK_XP_VALUES.pull_request_merged;
           questType = "github_pr_merged";
         } else {
           return NextResponse.json(
@@ -86,8 +67,8 @@ export async function POST(req: Request) {
         // Add tag XP and include tag in description
         if (tags.length > 0) {
           const tag = tags[0]; // Just use the first tag found
-          if (TAG_XP[tag as keyof typeof TAG_XP]) {
-            xp += TAG_XP[tag as keyof typeof TAG_XP];
+          if (tag !== "" && TAG_XP[tag]) {
+            xp += TAG_XP[tag];
             description += ` #${tag}`;
           }
         }
@@ -95,22 +76,22 @@ export async function POST(req: Request) {
 
       case "issues":
         description = `${payload.action} issue #${payload.issue.number} in ${payload.repository.name}`;
-        xp = XP_VALUES.issues;
+        xp = WEBHOOK_XP_VALUES.issues;
         questType = "github_issue";
         break;
 
       case "issue_comment":
         description = `Commented on #${payload.issue.number} in ${payload.repository.name}`;
-        xp = XP_VALUES.issue_comment;
+        xp = WEBHOOK_XP_VALUES.issue_comment;
         questType = "github_issue_comment";
         break;
 
       case "pull_request_review":
         const reviewState = payload.review?.state || "";
         if (reviewState === "approved") {
-          xp = XP_VALUES.pull_request_review;
+          xp = WEBHOOK_XP_VALUES.pull_request_review;
         } else {
-          xp = 2;
+          xp = 2; // Non-approved review still gets minimal XP
         }
         description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name}`;
         questType = "github_pr_review";
@@ -121,6 +102,15 @@ export async function POST(req: Request) {
           { message: "Unsupported event type" },
           { status: 200 }
         );
+    }
+
+    // Validate quest type
+    if (!isValidQuestType(questType)) {
+      console.error("Invalid quest type:", questType);
+      return NextResponse.json(
+        { message: "Invalid quest type" },
+        { status: 400 }
+      );
     }
 
     // Find user by GitHub username
