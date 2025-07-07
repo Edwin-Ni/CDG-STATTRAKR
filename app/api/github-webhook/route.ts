@@ -58,7 +58,6 @@ export async function POST(req: Request) {
 
         description = `${prAction} PR #${payload.number} in ${payload.repository.name}`;
 
-        // Check for tags in PR title or body
         const prTitle = payload.pull_request?.title || "";
         const prBody = payload.pull_request?.body || "";
         const fullText = `${prTitle} ${prBody}`;
