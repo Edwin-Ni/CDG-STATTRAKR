@@ -57,7 +57,6 @@ export const TAG_XP: Record<Exclude<TagType, "">, number> = {
   refactor: 8,
 } as const;
 
-// Quest type display information
 export const QUEST_DISPLAY: Record<QuestType, { name: string; icon: string }> =
   {
     github_commit: { name: "Commit", icon: "💦" },
