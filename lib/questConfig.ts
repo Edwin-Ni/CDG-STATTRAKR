@@ -21,12 +21,16 @@ export type QuestType =
   | "github_pr_review"
   | "business_cold_call"
   | "business_cold_message"
-  | "documentation";
+  | "documentation"
+  | "social_media_post";
 
 // Manual quest types (subset available for manual entry)
 export type ManualQuestType = Extract<
   QuestType,
-  "business_cold_call" | "business_cold_message" | "documentation"
+  | "business_cold_call"
+  | "business_cold_message"
+  | "documentation"
+  | "social_media_post"
 >;
 
 // Array of manual quest types for iteration
@@ -34,6 +38,7 @@ export const MANUAL_QUEST_TYPES: readonly ManualQuestType[] = [
   "business_cold_call",
   "business_cold_message",
   "documentation",
+  "social_media_post",
 ] as const;
 
 // Tag types for bonus XP
@@ -47,6 +52,7 @@ export const QUEST_XP: Record<QuestType, number> = {
   business_cold_call: 8,
   business_cold_message: 4,
   documentation: 12,
+  social_media_post: 36,
 } as const;
 
 // Bonus XP for tags
@@ -65,6 +71,7 @@ export const QUEST_DISPLAY: Record<QuestType, { name: string; icon: string }> =
     business_cold_call: { name: "Cold Call", icon: "🥶" },
     business_cold_message: { name: "Cold Message", icon: "💬" },
     documentation: { name: "Documentation", icon: "📄" },
+    social_media_post: { name: "Social Media Post", icon: "👥" },
   } as const;
 
 // Tag display information
