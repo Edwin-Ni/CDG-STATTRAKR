@@ -15,9 +15,17 @@
 
 // Need to refactor the icons, it currently is in QuestLogClient.tsx as well
 // Core quest types available in the system
+
+// Tags work by simply adding the tag to the title or description
+// #bug: +2 XP
+// #feature: +5 XP
+// #hotfix: +8 XP
+// #refactor: +8 XP
+
 export type QuestType =
   | "github_commit"
   | "github_pr_opened"
+  | "github_pr_merged"
   | "github_pr_review"
   | "business_cold_call"
   | "business_cold_message"
@@ -48,6 +56,7 @@ export type TagType = "bug" | "feature" | "hotfix" | "refactor" | "";
 export const QUEST_XP: Record<QuestType, number> = {
   github_commit: 1,
   github_pr_opened: 8,
+  github_pr_merged: 25,
   github_pr_review: 12,
   business_cold_call: 8,
   business_cold_message: 4,
@@ -67,6 +76,7 @@ export const QUEST_DISPLAY: Record<QuestType, { name: string; icon: string }> =
   {
     github_commit: { name: "Commit", icon: "💦" },
     github_pr_opened: { name: "PR Opened", icon: "😳" },
+    github_pr_merged: { name: "PR Merged", icon: "✅" },
     github_pr_review: { name: "PR Review", icon: "👀" },
     business_cold_call: { name: "Cold Call", icon: "🥶" },
     business_cold_message: { name: "Cold Message", icon: "💬" },
@@ -86,13 +96,6 @@ export const TAG_DISPLAY: Record<
     name: "Refactor",
     description: "Code improvement without new features",
   },
-} as const;
-
-// GitHub webhook mapping (for backward compatibility and webhook processing)
-export const WEBHOOK_XP_VALUES = {
-  push: QUEST_XP.github_commit, // Commits (push event)
-  pull_request_opened: QUEST_XP.github_pr_opened,
-  pull_request_review: QUEST_XP.github_pr_review,
 } as const;
 
 // Utility functions

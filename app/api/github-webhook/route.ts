@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  TAG_XP,
-  WEBHOOK_XP_VALUES,
-  extractTags,
-} from "../../../lib/questConfig";
+import { QUEST_XP, TAG_XP, extractTags } from "../../../lib/questConfig";
 import { supabaseAdmin } from "../../../lib/supabase-server";
 
 export async function POST(req: Request) {
@@ -32,32 +28,43 @@ export async function POST(req: Request) {
 
     // Extract details based on event type
     switch (event) {
-      // DISABLED due to abuse
-      // case "push":
-      //   const commitCount = payload.commits?.length || 1;
-      //   xp = WEBHOOK_XP_VALUES.push * commitCount; // XP per commit
-      //   description = `Pushed ${commitCount} commit(s) to ${payload.repository.name}`;
-      //   questType = "github_commit";
-      //   break;
+      case "push":
+        xp = QUEST_XP.github_commit;
+        description = `Pushed to ${payload.repository.name}`;
+        questType = "github_commit";
+        break;
 
-      case "pull_request":
+      case "pull_request": {
         const prAction = payload.action;
+        const pr = payload.pull_request;
 
-        if (prAction === "opened") {
-          xp = WEBHOOK_XP_VALUES.pull_request_opened;
-          questType = "github_pr_opened";
-        } else {
+        if (!pr) {
           return NextResponse.json(
-            { message: "Unsupported PR action" },
+            { message: "Missing pull request data" },
             { status: 200 }
           );
         }
 
-        description = `${prAction} PR #${payload.number} in ${payload.repository.name}`;
+        if (prAction === "opened") {
+          xp = QUEST_XP.github_pr_opened;
+          questType = "github_pr_opened";
+          github_username = pr.user.login;
+          description = `Opened PR #${payload.number} in ${payload.repository.name}`;
+        } else if (prAction === "closed" && pr.merged) {
+          xp = QUEST_XP.github_pr_merged;
+          questType = "github_pr_merged";
+          github_username = pr.user.login; // Assign XP to the PR author
+          description = `Merged PR #${payload.number} in ${payload.repository.name}`;
+        } else {
+          return NextResponse.json(
+            { message: "Unsupported PR action or not merged" },
+            { status: 200 }
+          );
+        }
 
         // Check for tags in PR title or body (ONLY for pull requests)
-        const prTitle = payload.pull_request?.title || "";
-        const prBody = payload.pull_request?.body || "";
+        const prTitle = pr.title || "";
+        const prBody = pr.body || "";
         const fullText = `${prTitle} ${prBody}`;
         const tags = extractTags(fullText);
 
@@ -70,6 +77,7 @@ export async function POST(req: Request) {
           }
         }
         break;
+      }
 
       case "pull_request_review":
         const reviewState = payload.review?.state || "";
@@ -79,7 +87,7 @@ export async function POST(req: Request) {
         if (reviewState === "commented") {
           xp = 1;
         } else {
-          xp = WEBHOOK_XP_VALUES.pull_request_review;
+          xp = QUEST_XP.github_pr_review;
         }
 
         description = `Reviewed PR #${payload.pull_request.number} in ${payload.repository.name} (${reviewState})`;
