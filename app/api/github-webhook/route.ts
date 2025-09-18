@@ -3,7 +3,6 @@ import {
   TAG_XP,
   WEBHOOK_XP_VALUES,
   extractTags,
-  isValidQuestType,
 } from "../../../lib/questConfig";
 import { supabaseAdmin } from "../../../lib/supabase-server";
 
@@ -33,12 +32,13 @@ export async function POST(req: Request) {
 
     // Extract details based on event type
     switch (event) {
-      case "push":
-        const commitCount = payload.commits?.length || 1;
-        xp = WEBHOOK_XP_VALUES.push * commitCount; // XP per commit
-        description = `Pushed ${commitCount} commit(s) to ${payload.repository.name}`;
-        questType = "github_commit";
-        break;
+      // DISABLED due to abuse
+      // case "push":
+      //   const commitCount = payload.commits?.length || 1;
+      //   xp = WEBHOOK_XP_VALUES.push * commitCount; // XP per commit
+      //   description = `Pushed ${commitCount} commit(s) to ${payload.repository.name}`;
+      //   questType = "github_commit";
+      //   break;
 
       case "pull_request":
         const prAction = payload.action;
@@ -91,15 +91,6 @@ export async function POST(req: Request) {
           { message: "Unsupported event type" },
           { status: 200 }
         );
-    }
-
-    // Validate quest type
-    if (!isValidQuestType(questType)) {
-      console.error("Invalid quest type:", questType);
-      return NextResponse.json(
-        { message: "Invalid quest type" },
-        { status: 400 }
-      );
     }
 
     // Find user by GitHub username
