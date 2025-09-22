@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 
         // Only award XP for actual reviews (approved, changes_requested, or dismissed)
         // Skip simple comments which have state "commented"
-        if (reviewState === "commented") {
+        if (reviewState === "commented" || reviewState === "dismissed") {
           xp = 1;
         } else {
           xp = QUEST_XP.github_pr_review;
