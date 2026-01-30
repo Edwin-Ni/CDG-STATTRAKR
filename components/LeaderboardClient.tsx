@@ -6,8 +6,10 @@ type LeaderboardEntry = {
   id: string;
   username: string;
   total_xp: number;
+  monthly_xp: number;
   level: number;
   quest_count: number;
+  monthly_quest_count: number;
 };
 
 export default function LeaderboardClient() {
@@ -120,7 +122,7 @@ export default function LeaderboardClient() {
                 Lvl {entry.level}
               </span>
               <span className="text-[#ffce63] pixel-font text-sm">
-                {entry.total_xp} XP
+                {monthlyToggle ? entry.monthly_xp : entry.total_xp} XP
               </span>
             </div>
           </div>
@@ -176,10 +178,10 @@ export default function LeaderboardClient() {
                     {entry.level}
                   </td>
                   <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#ffce63] pixel-font">
-                    {entry.total_xp}
+                    {monthlyToggle ? entry.monthly_xp : entry.total_xp}
                   </td>
                   <td className="px-3 lg:px-6 py-2 lg:py-4 whitespace-nowrap text-sm lg:text-md text-[#7eb8da] pixel-font">
-                    {entry.quest_count}
+                    {monthlyToggle ? entry.monthly_quest_count : entry.quest_count}
                   </td>
                 </tr>
               ))}
